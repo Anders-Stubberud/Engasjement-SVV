@@ -114,7 +114,7 @@ def is_flat(iterable: list) -> bool:
     return all(not isinstance(item, (list, tuple)) for item in iterable)
 
 
-def generate_latex_catalog(image_dir: Path, output_dir: Path, sections: list, title: str) -> None:
+def generate_latex_catalog(image_dir: Path, output_dir: Path, sections: list, title: str, filename: str) -> None:
     """
     Generate a LaTeX document cataloging the images from a directory with a TOC.
     Saves the catalog as a PDF in the output directory.
@@ -129,7 +129,7 @@ def generate_latex_catalog(image_dir: Path, output_dir: Path, sections: list, ti
     ]
     images.sort()
 
-    latex_file = output_dir / f"{title}.tex"
+    latex_file = output_dir / f"{filename}.tex"
 
     with open(latex_file, "w") as f:
         f.write(r"\documentclass{article}" + "\n")
@@ -145,7 +145,7 @@ def generate_latex_catalog(image_dir: Path, output_dir: Path, sections: list, ti
             + "\n"
         )
         f.write(r"\begin{document}" + "\n")
-        f.write(f"\\title{{{title.replace('-', ' ')}}}" + "\n")
+        f.write(f"\\title{{{title.replace('\n', '\\\\')}}}\n")
         f.write(r"\author{Anders V. Stubberud}" + "\n")
         f.write(r"\maketitle" + "\n")
         f.write(r"\tableofcontents" + "\n")
@@ -213,14 +213,16 @@ def main(
         image_dir=config.AXLE_LOAD_W_N200_AND_ESAL_FIGURES_DIR,
         output_dir=config.AXLE_LOAD_W_N200_AND_ESAL_DIR,
         sections=sections_illustrasjoner_til_supplerende_analyser,
-        title="Illustrasjoner-til-supplerende-analyser",
+        title="Illustrasjoner til supplerende analyser\nAksellastfordelinger",
+        filename="Illustrasjoner-til-supplerende-analyser-Aksellastfordelinger",
     )
 
     generate_latex_catalog(
         image_dir=config.VEHICLE_WEIGHT_FIGURES_DIR,
         output_dir=config.VEHICLE_WEIGHT_DIR,
         sections=sections_vehicle_weight,
-        title="Illustrasjoner-til-samlede-totalvekter",
+        title="Illustrasjoner til supplerende analyser\nTotalvekter",
+        filename="Illustrasjoner-til-supplerende-analyser-Totalvekter",
     )
 
 
