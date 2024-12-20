@@ -5,6 +5,7 @@ arrow==1.3.0
 asttokens==3.0.0
 async-lru==2.0.4
 attrs==24.3.0
+autoflake==2.3.1
 babel==2.16.0
 beautifulsoup4==4.12.3
 black==24.10.0
@@ -113,6 +114,7 @@ shellingham==1.5.4
 six==1.17.0
 sniffio==1.3.1
 soupsieve==2.6
+-e git+https://github.com/Anders-Stubberud/Engasjement-SVV.git@4387f4da86daf1ddca855b60b6e40b5cf51b0b77#egg=source
 stack-data==0.6.3
 terminado==0.18.1
 tinycss2==1.4.0
@@ -125,7 +127,6 @@ typing_extensions==4.12.2
 tzdata==2024.2
 uri-template==1.3.0
 urllib3==2.2.3
--e .
 wcwidth==0.2.13
 webcolors==24.11.1
 webencodings==0.5.1
