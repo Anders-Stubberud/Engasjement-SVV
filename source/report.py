@@ -8,30 +8,129 @@ from source import config
 
 app = typer.Typer()
 
+sections_illustrasjoner_til_supplerende_analyser = [
+    (
+        "Total aksellastfordeling for separate akselkonfigurasjoner",
+        [
+            (
+                "Enkeltaksel",
+                [
+                    "Total aksellastfordeling, enkeltaksel",
+                    "Total aksellastfordeling, enkeltaksel, sammenliknet med N200",
+                    "Total aksellastfordeling, enkeltaksel, sammenliknet med N200 og ekvivalensfaktor",
+                ],
+            ),
+            (
+                "Boggiaksel",
+                [
+                    "Total aksellastfordeling, boggiaksel",
+                    "Total aksellastfordeling, boggiaksel, sammenliknet med N200",
+                    "Total aksellastfordeling, boggiaksel, sammenliknet med N200 og ekvivalensfaktor",
+                ],
+            ),
+            (
+                "Trippelaksel",
+                [
+                    "Total aksellastfordeling, trippelaksel",
+                    "Total aksellastfordeling, trippelaksel, sammenliknet med N200",
+                    "Total aksellastfordeling, trippelaksel, sammenliknet med N200 og ekvivalensfaktor",
+                ],
+            ),
+        ],
+    ),
+    (
+        "Total aksellastfordeling for samtlige akselkonfigurasjoner",
+        [
+            "Total aksellastfordeling for samtlige akselkonfigurasjoner, barplot",
+            "Total aksellastfordeling for samtlige akselkonfigurasjoner, lineplot",
+            "Total aksellastfordeling for samtlige akselkonfigurasjoner, sammenliknet med N200, barplot",
+            "Total aksellastfordeling for samtlige akselkonfigurasjoner, sammenliknet med N200, lineplot",
+            "Total aksellastfordeling for samtlige akselkonfigurasjoner, sammenliknet med N200 og ekvivalensfaktor, barplot",
+            "Total aksellastfordeling for samtlige akselkonfigurasjoner, sammenliknet med N200 og ekvivalensfaktor, lineplot",
+        ],
+    ),
+]
 
-def generate_latex_catalog(image_dir: Path, output_dir: Path):
+sections_vehicle_weight = [
+    (
+        "Totalvekter, samtlige lokasjoner",
+        [
+            "Totalvekter, samtlige lokasjoner, lineplot"
+        ],
+    ),
+    (
+        "Totalvekter, individuelle lokasjoner", 
+        [
+            (
+                "Totalvekter, Skibotn",
+                [
+                    "Totalvekter, Skibotn, lineplot",
+                    "Totalvekter, Skibotn, barplot, 10 intervaller",
+                    "Totalvekter, Skibotn, barplot, 20 intervaller",
+                    "Totalvekter, Skibotn, barplot, 25 intervaller",
+                ],
+            ),
+            (
+                "Totalvekter, Verdal",
+                [
+                    "Totalvekter, Verdal, lineplot",
+                    "Totalvekter, Verdal, barplot, 10 intervaller",
+                    "Totalvekter, Verdal, barplot, 20 intervaller",
+                    "Totalvekter, Verdal, barplot, 25 intervaller",
+                ],
+            ),
+            (
+                "Totalvekter, Ånestad(østgående)",
+                [
+                    "Totalvekter, Ånestad(østgående), lineplot",
+                    "Totalvekter, Ånestad(østgående), barplot, 10 intervaller",
+                    "Totalvekter, Ånestad(østgående), barplot, 20 intervaller",
+                    "Totalvekter, Ånestad(østgående), barplot, 25 intervaller",
+                ],
+            ),
+            (
+                "Totalvekter, Ånestad(vestgående)",
+                [
+                    "Totalvekter, Ånestad(vestgående), lineplot",
+                    "Totalvekter, Ånestad(vestgående), barplot, 10 intervaller",
+                    "Totalvekter, Ånestad(vestgående), barplot, 20 intervaller",
+                    "Totalvekter, Ånestad(vestgående), barplot, 25 intervaller",
+                ],
+            ),
+            (
+                "Totalvekter, Øysand",
+                [
+                    "Totalvekter, Øysand, lineplot",
+                    "Totalvekter, Øysand, barplot, 10 intervaller",
+                    "Totalvekter, Øysand, barplot, 20 intervaller",
+                    "Totalvekter, Øysand, barplot, 25 intervaller",
+                ],
+            ),
+        ],
+    ),
+]
+
+def is_flat(iterable: list) -> bool:
+    """Check if a list or tuple contains no nested lists or tuples."""
+    return all(not isinstance(item, (list, tuple)) for item in iterable)
+
+def generate_latex_catalog(image_dir: Path, output_dir: Path, sections: list, title: str) -> None:
     """
     Generate a LaTeX document cataloging the images from a directory with a TOC.
     Saves the catalog as a PDF in the output directory.
     """
-    # Create output directory if it does not exist
-    output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Collect images from the directory
+    output_dir.mkdir(parents=True, exist_ok=True)
     image_extensions = [".png", ".jpg", ".jpeg", ".pdf"]
     images = [
         file
         for file in os.listdir(image_dir)
         if any(file.endswith(ext) for ext in image_extensions)
     ]
-
-    # Sort images (optional, depending on your preferred order)
     images.sort()
 
-    # LaTeX document content
-    latex_file = output_dir / "Illustrasjoner-til-supplerende-analyser.tex"
+    latex_file = output_dir / f'{title}.tex'
 
-    # Start writing LaTeX file, overwriting if it exists
     with open(latex_file, "w") as f:
         f.write(r"\documentclass{article}" + "\n")
         f.write(r"\usepackage{graphicx}" + "\n")
@@ -40,83 +139,23 @@ def generate_latex_catalog(image_dir: Path, output_dir: Path):
         f.write(r"\usepackage[norsk]{babel}" + "\n")  # Norwegian language
         f.write(
             r"\usepackage[a4paper, left=20mm, right=20mm, top=25mm, bottom=25mm]{geometry}" + "\n"
-        )  # Adjusted margins
-
-        # Configure hyperref to remove boxes and set link color to black
+        )
         f.write(
             r"\usepackage[linkcolor=black, urlcolor=black, citecolor=black, hidelinks]{hyperref}"
             + "\n"
         )
-
         f.write(r"\begin{document}" + "\n")
-
-        # Title and author
-        f.write(r"\title{Illustrasjoner til supplerende analyser}" + "\n")
+        f.write(f"\\title{{{title.replace('-', ' ')}}}" + "\n")
         f.write(r"\author{Anders V. Stubberud}" + "\n")
         f.write(r"\maketitle" + "\n")
-
-        # Generate Table of Contents
         f.write(r"\tableofcontents" + "\n")
         f.write(r"\newpage" + "\n")
 
-        # Major sections with subsections and subsubsections
-        sections = [
-            (
-                "Total aksellastfordeling for separate akselkonfigurasjoner",
-                [
-                    (
-                        "Enkeltaksel",
-                        [
-                            "Total aksellastfordeling, enkeltaksel",
-                            "Total aksellastfordeling, enkeltaksel, sammenliknet med N200",
-                            "Total aksellastfordeling, enkeltaksel, sammenliknet med N200 og ekvivalensfaktor",
-                        ],
-                    ),
-                    (
-                        "Boggiaksel",
-                        [
-                            "Total aksellastfordeling, boggiaksel",
-                            "Total aksellastfordeling, boggiaksel, sammenliknet med N200",
-                            "Total aksellastfordeling, boggiaksel, sammenliknet med N200 og ekvivalensfaktor",
-                        ],
-                    ),
-                    (
-                        "Trippelaksel",
-                        [
-                            "Total aksellastfordeling, trippelaksel",
-                            "Total aksellastfordeling, trippelaksel, sammenliknet med N200",
-                            "Total aksellastfordeling, trippelaksel, sammenliknet med N200 og ekvivalensfaktor",
-                        ],
-                    ),
-                ],
-            ),
-            (
-                "Total aksellastfordeling for samtlige akselkonfigurasjoner",
-                [
-                    "Total aksellastfordeling for samtlige akselkonfigurasjoner, barplot",
-                    "Total aksellastfordeling for samtlige akselkonfigurasjoner, lineplot",
-                    "Total aksellastfordeling for samtlige akselkonfigurasjoner, sammenliknet med N200, barplot",
-                    "Total aksellastfordeling for samtlige akselkonfigurasjoner, sammenliknet med N200, lineplot",
-                    "Total aksellastfordeling for samtlige akselkonfigurasjoner, sammenliknet med N200 og ekvivalensfaktor, barplot",
-                    "Total aksellastfordeling for samtlige akselkonfigurasjoner, sammenliknet med N200 og ekvivalensfaktor, lineplot",
-                ],
-            ),
-        ]
-
-        # Replace this section where you process subsections and subsubsections
-        # for "Total aksellastfordeling for samtlige akselkonfigurasjoner"
         for section_title, subsections in sections:
-            # Write section title and add to TOC
             f.write(r"\section{" + section_title + "}" + "\n")
-
-            # Special handling for this section
-            if section_title == "Total aksellastfordeling for samtlige akselkonfigurasjoner":
-                # This section should directly list subsections, not subsubsections
+            if is_flat(subsections): # Special handling subsections without subsubsections
                 for subsection_title in subsections:
-                    # Write subsection (not subsubsection)
                     f.write(r"\subsection{" + subsection_title + "}" + "\n")
-
-                    # Insert image (assuming images are named according to the subsection title with .png extension)
                     img_filename = subsection_title + ".png"
                     if img_filename in images:
                         f.write(r"\begin{figure}[H]" + "\n")
@@ -127,21 +166,15 @@ def generate_latex_catalog(image_dir: Path, output_dir: Path):
                             + "}"
                             + "\n"
                         )
-                        # f.write(r"\caption{" + subsection_title + "}" + "\n")
                         f.write(r"\end{figure}" + "\n")
             else:
-                # Loop through the rest of the sections as normal (subsubsection structure)
                 for subsection_title, subsubsections in (
                     subsections if isinstance(subsections[0], tuple) else [(None, subsections)]
                 ):
-                    # Write subsection
                     if subsection_title:
                         f.write(r"\subsection{" + subsection_title + "}" + "\n")
-
                     for subsubsection_title in subsubsections:
-                        # Write subsubsection and corresponding image
                         f.write(r"\subsubsection{" + subsubsection_title + "}" + "\n")
-                        # Insert image (assuming images are named according to the subsubsection title with .png extension)
                         img_filename = subsubsection_title + ".png"
                         if img_filename in images:
                             f.write(r"\begin{figure}[H]" + "\n")
@@ -152,21 +185,18 @@ def generate_latex_catalog(image_dir: Path, output_dir: Path):
                                 + "}"
                                 + "\n"
                             )
-                            # f.write(r"\caption{" + subsubsection_title + "}" + "\n")
                             f.write(r"\end{figure}" + "\n")
 
         f.write(r"\end{document}" + "\n")
 
-    # Compile LaTeX to PDF using pdflatex (system command)
     try:
         os.system(f"pdflatex -output-directory={output_dir} {latex_file}")
         os.system(
             f"pdflatex -output-directory={output_dir} {latex_file}"
-        )  # Second run to generate TOC correctly
+        )
     except Exception as e:
         logger.error(f"LaTeX compilation failed: {e}")
 
-    # Optionally, remove the .aux, .log, .toc files generated by LaTeX
     for ext in ["aux", "log", "toc", "out"]:
         temp_file = latex_file.with_suffix(f".{ext}")
         if temp_file.exists():
@@ -180,9 +210,20 @@ def main(
     output_path: Path = config.AXLE_LOAD_W_N200_AND_ESAL_DIR,
     # ----------------------------------------------
 ):
-    # ---- LaTeX Catalog Generation ----
-    generate_latex_catalog(input_path, output_path)
+    
+    generate_latex_catalog(
+        image_dir=config.AXLE_LOAD_W_N200_AND_ESAL_FIGURES_DIR, 
+        output_dir=config.AXLE_LOAD_W_N200_AND_ESAL_DIR, 
+        sections=sections_illustrasjoner_til_supplerende_analyser, 
+        title="Illustrasjoner-til-supplerende-analyser",
+    )
 
+    generate_latex_catalog(
+        image_dir=config.VEHICLE_WEIGHT_FIGURES_DIR, 
+        output_dir=config.VEHICLE_WEIGHT_DIR, 
+        sections=sections_vehicle_weight, 
+        title="Illustrasjoner-til-samlede-totalvekter",
+    )
 
 if __name__ == "__main__":
     app()

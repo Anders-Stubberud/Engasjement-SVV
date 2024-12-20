@@ -23,6 +23,13 @@ def main(
         "https://raw.githubusercontent.com/Anders-Stubberud/toianalyser/refs/heads/main/resultater/aksellastfordeling.csv"
     ).to_csv(RAW_DATA_DIR / "axle load distribution.csv", index=False)
 
+    ## Data on total vehicle weights, calculated from the WIM sensors during the summer job.
+    ## This data comes binned with roughly a 1-ton interval, as a menas not to crunch thourgh all the dataset again.
+    ## Even though it is binned, the granularity should still be adequate to display the distribution (which is the main goal here).
+    pd.read_csv(
+        "https://raw.githubusercontent.com/Anders-Stubberud/toianalyser/refs/heads/main/resultater/totalvekter.csv"
+    ).to_csv(RAW_DATA_DIR / "total vehicle weight.csv", index=False)
+
     # -----------------------------------------
 
 

@@ -40,6 +40,19 @@ def calculate_axle_load_distributions(df: pd.DataFrame) -> None:
         )
 
 
+def group_by_locations(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Group the total vehicle weight data by location.
+    Drops the date-like features.
+
+    Args:
+        df (pd.DataFrame): The dataframe containing the total vehicle weight data.
+    Returns:
+        pd.DataFrame: The grouped dataframe.
+    """
+    return df.drop(columns=["startdate", "enddate"]).groupby("location").sum()
+
+
 @app.command()
 def main(
     # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
@@ -48,8 +61,14 @@ def main(
     # -----------------------------------------
 ):
     # ---- REPLACE THIS WITH YOUR OWN CODE ----
-    df = pd.read_csv(RAW_DATA_DIR / "axle load distribution.csv")
-    calculate_axle_load_distributions(df)
+    df_axle_load_distribution = pd.read_csv(RAW_DATA_DIR / "axle load distribution.csv")
+    calculate_axle_load_distributions(df_axle_load_distribution)
+
+    df_total_vehicle_weight = pd.read_csv(RAW_DATA_DIR / "total vehicle weight.csv")
+    df_total_vehicle_weight_grouped_by_location = group_by_locations(df_total_vehicle_weight)
+    df_total_vehicle_weight_grouped_by_location.to_csv(
+        INTERIM_DATA_DIR / "total vehicle weight grouped by location.csv"
+    )
     # -----------------------------------------
 
 
