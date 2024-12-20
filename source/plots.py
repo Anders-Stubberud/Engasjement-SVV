@@ -4,7 +4,8 @@ import typer
 
 from source.config import FIGURES_DIR
 from source.config import PROCESSED_DATA_DIR
-from source.plot_scripts import axle_load_w_N200_and_esal, total_vehicle_weight
+from source.plot_scripts import axle_load_w_N200_and_esal
+from source.plot_scripts import total_vehicle_weight
 
 app = typer.Typer()
 

@@ -54,12 +54,10 @@ sections_illustrasjoner_til_supplerende_analyser = [
 sections_vehicle_weight = [
     (
         "Totalvekter, samtlige lokasjoner",
-        [
-            "Totalvekter, samtlige lokasjoner, lineplot"
-        ],
+        ["Totalvekter, samtlige lokasjoner, lineplot"],
     ),
     (
-        "Totalvekter, individuelle lokasjoner", 
+        "Totalvekter, individuelle lokasjoner",
         [
             (
                 "Totalvekter, Skibotn",
@@ -110,9 +108,11 @@ sections_vehicle_weight = [
     ),
 ]
 
+
 def is_flat(iterable: list) -> bool:
     """Check if a list or tuple contains no nested lists or tuples."""
     return all(not isinstance(item, (list, tuple)) for item in iterable)
+
 
 def generate_latex_catalog(image_dir: Path, output_dir: Path, sections: list, title: str) -> None:
     """
@@ -129,7 +129,7 @@ def generate_latex_catalog(image_dir: Path, output_dir: Path, sections: list, ti
     ]
     images.sort()
 
-    latex_file = output_dir / f'{title}.tex'
+    latex_file = output_dir / f"{title}.tex"
 
     with open(latex_file, "w") as f:
         f.write(r"\documentclass{article}" + "\n")
@@ -153,7 +153,7 @@ def generate_latex_catalog(image_dir: Path, output_dir: Path, sections: list, ti
 
         for section_title, subsections in sections:
             f.write(r"\section{" + section_title + "}" + "\n")
-            if is_flat(subsections): # Special handling subsections without subsubsections
+            if is_flat(subsections):  # Special handling subsections without subsubsections
                 for subsection_title in subsections:
                     f.write(r"\subsection{" + subsection_title + "}" + "\n")
                     img_filename = subsection_title + ".png"
@@ -191,9 +191,7 @@ def generate_latex_catalog(image_dir: Path, output_dir: Path, sections: list, ti
 
     try:
         os.system(f"pdflatex -output-directory={output_dir} {latex_file}")
-        os.system(
-            f"pdflatex -output-directory={output_dir} {latex_file}"
-        )
+        os.system(f"pdflatex -output-directory={output_dir} {latex_file}")
     except Exception as e:
         logger.error(f"LaTeX compilation failed: {e}")
 
@@ -210,20 +208,21 @@ def main(
     output_path: Path = config.AXLE_LOAD_W_N200_AND_ESAL_DIR,
     # ----------------------------------------------
 ):
-    
+
     generate_latex_catalog(
-        image_dir=config.AXLE_LOAD_W_N200_AND_ESAL_FIGURES_DIR, 
-        output_dir=config.AXLE_LOAD_W_N200_AND_ESAL_DIR, 
-        sections=sections_illustrasjoner_til_supplerende_analyser, 
+        image_dir=config.AXLE_LOAD_W_N200_AND_ESAL_FIGURES_DIR,
+        output_dir=config.AXLE_LOAD_W_N200_AND_ESAL_DIR,
+        sections=sections_illustrasjoner_til_supplerende_analyser,
         title="Illustrasjoner-til-supplerende-analyser",
     )
 
     generate_latex_catalog(
-        image_dir=config.VEHICLE_WEIGHT_FIGURES_DIR, 
-        output_dir=config.VEHICLE_WEIGHT_DIR, 
-        sections=sections_vehicle_weight, 
+        image_dir=config.VEHICLE_WEIGHT_FIGURES_DIR,
+        output_dir=config.VEHICLE_WEIGHT_DIR,
+        sections=sections_vehicle_weight,
         title="Illustrasjoner-til-samlede-totalvekter",
     )
+
 
 if __name__ == "__main__":
     app()
