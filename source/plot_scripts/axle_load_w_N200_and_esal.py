@@ -17,6 +17,8 @@
 # %load_ext autoreload
 # %autoreload 2
 
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -28,7 +30,7 @@ df_single = pd.read_csv(config.INTERIM_DATA_DIR / "Enkeltaksler axle load distri
 df_boggi = pd.read_csv(config.INTERIM_DATA_DIR / "Boggiaksler axle load distribution.csv")
 df_triple = pd.read_csv(config.INTERIM_DATA_DIR / "Trippelaksler axle load distribution.csv")
 
-# # region Constants
+# region Constants
 
 label_x_axis = "Tonn"
 label_y_axis = "Prosent av den totale fordelingen"
@@ -77,8 +79,9 @@ opacity_n200 = 0.4
 
 plot = False
 save_fig = True
+# endregion
 
-# # Variables
+# region Variables
 
 tonnage_categories = df_single.columns[1:]
 df_single_total = df_single[df_single["Sted"] == "Total"][tonnage_categories].values.flatten()
@@ -211,7 +214,7 @@ def plot_individual_bars(df, axle_type, mode="default"):
 
     plt.tight_layout()
     if save_fig:
-        plt.savefig(config.FIGURES_DIR / f"{title}.png")
+        plt.savefig(config.AXLE_LOAD_W_N200_AND_ESAL_FIGURES_DIR / f"{title}.png")
     if plot:
         plt.show()
 
@@ -301,7 +304,7 @@ def plot_combined_value_bars(mode="default"):
     )
     plt.tight_layout()
     if save_fig:
-        plt.savefig(config.FIGURES_DIR / f"{title}.png")
+        plt.savefig(config.AXLE_LOAD_W_N200_AND_ESAL_FIGURES_DIR / f"{title}.png")
     if plot:
         plt.show()
 
@@ -387,13 +390,15 @@ def plot_line_chart(mode="default"):
 
     plt.tight_layout()
     if save_fig:
-        plt.savefig(config.FIGURES_DIR / f"{title}.png")
+        plt.savefig(config.AXLE_LOAD_W_N200_AND_ESAL_FIGURES_DIR / f"{title}.png")
     if plot:
         plt.show()
 
 
 # # Plotting
 def main():
+
+    os.makedirs(config.AXLE_LOAD_W_N200_AND_ESAL_FIGURES_DIR, exist_ok=True)
 
     # ## Solely axle loads
     plot_individual_bars(df_single, "enkeltaksel", mode="default")

@@ -20,6 +20,8 @@ MODELS_DIR = PROJ_ROOT / "models"
 
 REPORTS_DIR = PROJ_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"
+AXLE_LOAD_W_N200_AND_ESAL_DIR = REPORTS_DIR / "axle_load_w_N200_and_esal"
+AXLE_LOAD_W_N200_AND_ESAL_FIGURES_DIR = AXLE_LOAD_W_N200_AND_ESAL_DIR / "figures"
 
 # Constants
 Axle_load_distribution_10_ton_road_percentage_N200 = {

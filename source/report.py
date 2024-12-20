@@ -176,8 +176,8 @@ def generate_latex_catalog(image_dir: Path, output_dir: Path):
 @app.command()
 def main(
     # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
-    input_path: Path = config.FIGURES_DIR,
-    output_path: Path = config.REPORTS_DIR,
+    input_path: Path = config.AXLE_LOAD_W_N200_AND_ESAL_FIGURES_DIR,
+    output_path: Path = config.AXLE_LOAD_W_N200_AND_ESAL_DIR,
     # ----------------------------------------------
 ):
     # ---- LaTeX Catalog Generation ----
