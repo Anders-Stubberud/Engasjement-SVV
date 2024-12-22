@@ -123,10 +123,10 @@ sections_vehicle_weight_74t = [
     (
         "Totalvekter, individuelle konfigurasjoner",
         (
-            "Totalvekter, 3-akslet trekkvogn med 4-akslet tilhenger",
-            "Totalvekter, 3-akslet trekkvogn med 5-akslet tilhenger",
-            "Totalvekter, 4-akslet trekkvogn med 4-akslet tilhenger",
-            "Totalvekter, 4-akslet trekkvogn med 5-akslet tilhenger",
+            "Totalvekter, 3-akslet trekkvogn med 4-akslet tilhenger (60T)",
+            "Totalvekter, 3-akslet trekkvogn med 5-akslet tilhenger (65T)",
+            "Totalvekter, 4-akslet trekkvogn med 4-akslet tilhenger (68T)",
+            "Totalvekter, 4-akslet trekkvogn med 5-akslet tilhenger (74T)",
         ),
     ),
 ]
