@@ -26,6 +26,7 @@ color = {
     "lineplot": "black",
 }
 
+
 def plot_bars(df: pd.DataFrame) -> None:
     locations = df["location"].unique()
     weight_columns = df.columns[1:]
@@ -58,7 +59,7 @@ def plot_bars(df: pd.DataFrame) -> None:
             plt.xticks(ticks=np.arange(len(bin_labels)), labels=bin_labels, rotation=45)
             plt.tight_layout()
 
-            file_path = f"{config.VEHICLE_WEIGHT_FIGURES_DIR / title}.png"
+            file_path = f"{config.VEHICLE_WEIGHT_FIGURES_DIR_WIM / title}.png"
             plt.savefig(file_path)
             plt.close()
 
@@ -95,7 +96,12 @@ def plot_lines(df: pd.DataFrame) -> None:
                 else 0
             )
             cutoff_midpoint = max(cutoff_midpoint or 0, midpoint_labels[cutoff_idx])
-            plt.plot(midpoint_labels[: cutoff_idx + 1], row[: cutoff_idx + 1], alpha=1, color=color["lineplot"])
+            plt.plot(
+                midpoint_labels[: cutoff_idx + 1],
+                row[: cutoff_idx + 1],
+                alpha=1,
+                color=color["lineplot"],
+            )
 
         title = PLOT_FILE_NAMES("lineplot", location, None)
         plt.title(title)
@@ -108,7 +114,7 @@ def plot_lines(df: pd.DataFrame) -> None:
         )
         plt.tight_layout()
 
-        file_path = f"{config.VEHICLE_WEIGHT_FIGURES_DIR / title}.png"
+        file_path = f"{config.VEHICLE_WEIGHT_FIGURES_DIR_WIM / title}.png"
         plt.savefig(file_path)
         plt.close()
 
@@ -128,7 +134,10 @@ def plot_lines(df: pd.DataFrame) -> None:
         cutoff_midpoint = max(cutoff_midpoint, midpoint_labels[cutoff_idx])
 
         plt.plot(
-            midpoint_labels[: cutoff_idx + 1], avg_relative[: cutoff_idx + 1], label=f"{location}", alpha=0.75,
+            midpoint_labels[: cutoff_idx + 1],
+            avg_relative[: cutoff_idx + 1],
+            label=f"{location}",
+            alpha=0.75,
         )
 
     title = PLOT_FILE_NAMES("lineplot", ALL_LOCATIONS, None)
@@ -143,13 +152,13 @@ def plot_lines(df: pd.DataFrame) -> None:
     )
     plt.tight_layout()
 
-    file_path = f"{config.VEHICLE_WEIGHT_FIGURES_DIR / title}.png"
+    file_path = f"{config.VEHICLE_WEIGHT_FIGURES_DIR_WIM / title}.png"
     plt.savefig(file_path)
     plt.close()
 
 
 def main():
-    os.makedirs(config.VEHICLE_WEIGHT_FIGURES_DIR, exist_ok=True)
+    os.makedirs(config.VEHICLE_WEIGHT_FIGURES_DIR_WIM, exist_ok=True)
 
     df = pd.read_csv(config.INTERIM_DATA_DIR / "total vehicle weight grouped by location.csv")
 

@@ -5,6 +5,10 @@ import typer
 from loguru import logger
 
 from source import config
+from source.config import MODE_AXLE_LOAD
+from source.config import MODE_VEHICLE_WEIGHT_WIM
+from source.config import MODE_VEHICLE_WEIGHT_74T
+from source.utils import should_run_task
 
 app = typer.Typer()
 
@@ -108,13 +112,33 @@ sections_vehicle_weight = [
     ),
 ]
 
+sections_vehicle_weight_74t = [
+    (
+        "Totalvekter, samtlige konfigurasjoner",
+        (
+            "Totalvekter, samtlige konfigurasjoner",
+            "Totalvekter, samtlige konfigurasjoner, individuelle bidrag",
+        ),
+    ),
+    (
+        "Totalvekter, individuelle konfigurasjoner",
+        (
+            "Totalvekter, 3-akslet trekkvogn med 4-akslet tilhenger",
+            "Totalvekter, 3-akslet trekkvogn med 5-akslet tilhenger",
+            "Totalvekter, 4-akslet trekkvogn med 4-akslet tilhenger",
+            "Totalvekter, 4-akslet trekkvogn med 5-akslet tilhenger",
+        ),
+    ),
+]
 
 def is_flat(iterable: list) -> bool:
     """Check if a list or tuple contains no nested lists or tuples."""
     return all(not isinstance(item, (list, tuple)) for item in iterable)
 
 
-def generate_latex_catalog(image_dir: Path, output_dir: Path, sections: list, title: str, filename: str) -> None:
+def generate_latex_catalog(
+    image_dir: Path, output_dir: Path, sections: list, title: str, filename: str
+) -> None:
     """
     Generate a LaTeX document cataloging the images from a directory with a TOC.
     Saves the catalog as a PDF in the output directory.
@@ -206,25 +230,36 @@ def main(
     # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
     input_path: Path = config.AXLE_LOAD_W_N200_AND_ESAL_FIGURES_DIR,
     output_path: Path = config.AXLE_LOAD_W_N200_AND_ESAL_DIR,
+    mode: int = 0,
     # ----------------------------------------------
 ):
 
-    generate_latex_catalog(
-        image_dir=config.AXLE_LOAD_W_N200_AND_ESAL_FIGURES_DIR,
-        output_dir=config.AXLE_LOAD_W_N200_AND_ESAL_DIR,
-        sections=sections_illustrasjoner_til_supplerende_analyser,
-        title="Illustrasjoner til supplerende analyser\nAksellastfordelinger",
-        filename="Illustrasjoner-til-supplerende-analyser-Aksellastfordelinger",
-    )
+    if should_run_task(mode, MODE_AXLE_LOAD):
+        generate_latex_catalog(
+            image_dir=config.AXLE_LOAD_W_N200_AND_ESAL_FIGURES_DIR,
+            output_dir=config.AXLE_LOAD_W_N200_AND_ESAL_DIR,
+            sections=sections_illustrasjoner_til_supplerende_analyser,
+            title="Illustrasjoner til supplerende analyser\nAksellastfordelinger",
+            filename="Illustrasjoner-til-supplerende-analyser-Aksellastfordelinger",
+        )
 
-    generate_latex_catalog(
-        image_dir=config.VEHICLE_WEIGHT_FIGURES_DIR,
-        output_dir=config.VEHICLE_WEIGHT_DIR,
-        sections=sections_vehicle_weight,
-        title="Illustrasjoner til supplerende analyser\nTotalvekter",
-        filename="Illustrasjoner-til-supplerende-analyser-Totalvekter",
-    )
+    if should_run_task(mode, MODE_VEHICLE_WEIGHT_WIM):
+        generate_latex_catalog(
+            image_dir=config.VEHICLE_WEIGHT_FIGURES_DIR_WIM,
+            output_dir=config.VEHICLE_WEIGHT_DIR_WIM,
+            sections=sections_vehicle_weight,
+            title="Illustrasjoner til supplerende analyser\nTotalvekter",
+            filename="Illustrasjoner-til-supplerende-analyser-Totalvekter",
+        )
 
+    if should_run_task(mode, MODE_VEHICLE_WEIGHT_74T):
+        generate_latex_catalog(
+            image_dir=config.VEHICLE_WEIGHT_FIGURES_DIR_74T,
+            output_dir=config.VEHICLE_WEIGHT_DIR_74T,
+            sections=sections_vehicle_weight_74t,
+            title="Totalvekter fra 74T prøveordningen",
+            filename="Totalvekter-fra-74T-prøveordningen",
+        )
 
 if __name__ == "__main__":
     app()

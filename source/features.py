@@ -4,8 +4,12 @@ import pandas as pd
 import typer
 
 from source.config import INTERIM_DATA_DIR
+from source.config import MODE_AXLE_LOAD
+from source.config import MODE_VEHICLE_WEIGHT_74T
+from source.config import MODE_VEHICLE_WEIGHT_WIM
 from source.config import PROCESSED_DATA_DIR
 from source.config import RAW_DATA_DIR
+from source.utils import should_run_task
 
 app = typer.Typer()
 
@@ -58,17 +62,30 @@ def main(
     # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
     input_path: Path = PROCESSED_DATA_DIR / "dataset.csv",
     output_path: Path = PROCESSED_DATA_DIR / "features.csv",
+    mode: int = 0,
     # -----------------------------------------
 ):
     # ---- REPLACE THIS WITH YOUR OWN CODE ----
-    df_axle_load_distribution = pd.read_csv(RAW_DATA_DIR / "axle load distribution.csv")
-    calculate_axle_load_distributions(df_axle_load_distribution)
+    if should_run_task(mode, MODE_AXLE_LOAD):
+        df_axle_load_distribution = pd.read_csv(RAW_DATA_DIR / "axle load distribution.csv")
+        calculate_axle_load_distributions(df_axle_load_distribution)
 
-    df_total_vehicle_weight = pd.read_csv(RAW_DATA_DIR / "total vehicle weight.csv")
-    df_total_vehicle_weight_grouped_by_location = group_by_locations(df_total_vehicle_weight)
-    df_total_vehicle_weight_grouped_by_location.to_csv(
-        INTERIM_DATA_DIR / "total vehicle weight grouped by location.csv"
-    )
+    if should_run_task(mode, MODE_VEHICLE_WEIGHT_WIM):
+        df_total_vehicle_weight = pd.read_csv(RAW_DATA_DIR / "total vehicle weight.csv")
+        df_total_vehicle_weight_grouped_by_location = group_by_locations(df_total_vehicle_weight)
+        df_total_vehicle_weight_grouped_by_location.to_csv(
+            INTERIM_DATA_DIR / "total vehicle weight grouped by location.csv"
+        )
+
+    if should_run_task(mode, MODE_VEHICLE_WEIGHT_74T):
+
+        pd.concat(
+            [
+                pd.read_csv(f, parse_dates=["Dato"], dayfirst=False, sep=";")
+                for f in (RAW_DATA_DIR / "vehicle_data_74t").glob("*.csv")
+            ],
+            ignore_index=True,
+        ).sort_values("Dato").to_csv(INTERIM_DATA_DIR / "vehicle weight from 74t.csv", index=False)
     # -----------------------------------------
 
 

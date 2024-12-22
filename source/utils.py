@@ -4,6 +4,10 @@ from typing import Tuple
 import numpy as np
 
 
+def should_run_task(mode: int, mode_task: int):
+    return mode == mode_task or mode == 0
+
+
 def find_threshold_index(array, delta):
     """
     Finds the index in the array where all subsequent elements are less than delta.

@@ -6,6 +6,8 @@ PROJECT_NAME = engasjement_svv
 PYTHON_VERSION = 3.12
 PYTHON_INTERPRETER = python
 
+mode = 0
+
 #################################################################################
 # COMMANDS                                                                      #
 #################################################################################
@@ -57,22 +59,22 @@ create_environment:
 ## Make Dataset
 .PHONY: data
 data: requirements
-	$(PYTHON_INTERPRETER) source/dataset.py
+	$(PYTHON_INTERPRETER) source/dataset.py --mode $(mode)
 
 ## Make Features
 .PHONY: features
 features: data
-	$(PYTHON_INTERPRETER) source/features.py
+	$(PYTHON_INTERPRETER) source/features.py --mode $(mode)
 
 ## Make plots
 .PHONY: plots
 plots: features
-	$(PYTHON_INTERPRETER) source/plots.py
+	$(PYTHON_INTERPRETER) source/plots.py --mode $(mode)
 
 ## Make report
 .PHONY: report
 report: plots
-	$(PYTHON_INTERPRETER) source/report.py
+	$(PYTHON_INTERPRETER) source/report.py --mode $(mode)
 
 #################################################################################
 # Self Documenting Commands                                                     #

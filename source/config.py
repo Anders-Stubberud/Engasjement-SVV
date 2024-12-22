@@ -6,7 +6,9 @@ from loguru import logger
 # Load environment variables from .env file if it exists
 load_dotenv()
 
-# Paths
+##################################################
+# region Paths                                   #
+
 PROJ_ROOT = Path(__file__).resolve().parents[1]
 logger.info(f"PROJ_ROOT path is: {PROJ_ROOT}")
 
@@ -21,13 +23,32 @@ MODELS_DIR = PROJ_ROOT / "models"
 REPORTS_DIR = PROJ_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"
 
+# endregion
+##################################################
+
+##################################################
+# region Task configurations                     #
+
+MODE_ALL_TASKS = 0
+
+MODE_AXLE_LOAD = 1
 AXLE_LOAD_W_N200_AND_ESAL_DIR = REPORTS_DIR / "axle_load_w_N200_and_esal"
 AXLE_LOAD_W_N200_AND_ESAL_FIGURES_DIR = AXLE_LOAD_W_N200_AND_ESAL_DIR / "figures"
 
-VEHICLE_WEIGHT_DIR = REPORTS_DIR / "vehicle_weight"
-VEHICLE_WEIGHT_FIGURES_DIR = VEHICLE_WEIGHT_DIR / "figures"
+MODE_VEHICLE_WEIGHT_WIM = 2
+VEHICLE_WEIGHT_DIR_WIM = REPORTS_DIR / "vehicle_weight_wim"
+VEHICLE_WEIGHT_FIGURES_DIR_WIM = VEHICLE_WEIGHT_DIR_WIM / "figures"
 
-# Constants
+MODE_VEHICLE_WEIGHT_74T = 3
+VEHICLE_WEIGHT_DIR_74T = REPORTS_DIR / "vehicle_weight_74t"
+VEHICLE_WEIGHT_FIGURES_DIR_74T = VEHICLE_WEIGHT_DIR_74T / "figures"
+
+# endregion
+##################################################
+
+##################################################
+# region Constants                               #
+
 Axle_load_distribution_10_ton_road_percentage_N200 = {
     "0-1 tonn": 4,
     "1-2 tonn": 8,
@@ -45,6 +66,9 @@ Axle_load_distribution_10_ton_road_percentage_N200 = {
     "13-14 tonn": 0.6,
     "14-15 tonn": 0.3,
 }
+
+# endregion
+##################################################
 
 # If tqdm is installed, configure loguru with tqdm.write
 # https://github.com/Delgan/loguru/issues/135
