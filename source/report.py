@@ -6,8 +6,8 @@ from loguru import logger
 
 from source import config
 from source.config import MODE_AXLE_LOAD
-from source.config import MODE_VEHICLE_WEIGHT_WIM
 from source.config import MODE_VEHICLE_WEIGHT_74T
+from source.config import MODE_VEHICLE_WEIGHT_WIM
 from source.utils import should_run_task
 
 app = typer.Typer()
@@ -130,6 +130,7 @@ sections_vehicle_weight_74t = [
         ),
     ),
 ]
+
 
 def is_flat(iterable: list) -> bool:
     """Check if a list or tuple contains no nested lists or tuples."""
@@ -260,6 +261,7 @@ def main(
             title="Totalvekter fra 74T prøveordningen",
             filename="Totalvekter-fra-74T-prøveordningen",
         )
+
 
 if __name__ == "__main__":
     app()
