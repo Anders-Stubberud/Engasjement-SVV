@@ -1,17 +1,14 @@
-import numpy as np
-import pandas as pd
-import polars as pl
-from math import isclose
-from random import randint
-from datetime import datetime
-from source.features_dir import road_wear_indicators
+\section{Validering av resultat}
+For å sørge for at resultatene er nogenlunde presise, så har jeg laget tester som setter forventede verdier opp mot de beregnede verdiene.
+Alle testene her fungerer, dog ådtt har marginale avvik mellom forventet og beregnet verdi (skylder på avrundingsfeil). Avviket er godt under 0.5\%, 
+så jeg anser dette som tolererbart.\\
+Testene er tilgjengelige her: \url{https://github.com/Anders-Stubberud/Engasjement-SVV/blob/main/testing/test_road_wear_indicators.py}.
 
-MILLISECONDS_1_DAY = 1000 * 60 * 60 * 24
-STARTTIME = int(datetime(2020, 1, 11, 12, 30).timestamp())
-AXLES_COUNT = "AxlesCount"
-
-
-def test_ådtt():
+\begin{figure}[ht]
+\centering
+\scriptsize
+\begin{lstlisting}
+def test_aadtt():
     unique_days = randint(1, 1000)
 
     data = [
@@ -19,15 +16,22 @@ def test_ådtt():
         for i in range(unique_days)
         for _ in range(randint(1, 2000))
     ]
+
     df = pd.DataFrame(data, columns=['StartTime'])
     
     total_registrations_first_year = len([t for t in data if t < STARTTIME + 365 * MILLISECONDS_1_DAY])
-    actual_ådtt = total_registrations_first_year / min(365, unique_days)
-    
-    calculated_ådtt = road_wear_indicators.calculate_ådtt(pl.from_pandas(df))
-    assert isclose(actual_ådtt, calculated_ådtt, rel_tol=5e-3) # tar hånd om avrundingsfeil opp til 0.5% avvik
+    actual_aadtt = total_registrations_first_year / min(365, unique_days)
+    calculated_aadtt = road_wear_indicators.calculate_aadtt(pl.from_pandas(df))
 
+    assert isclose(actual_aadtt, calculated_aadtt, rel_tol=5e-3) # avrundingsfeil opp til 0.5% avvik
+\end{lstlisting}
+\caption{Test for beregning av ÅDTT. Generer et tilfeldig antall unike dager, og for hvert av disse generer et tilfeldig antall registreringer. Beregner deretter snittet av antall registreringer per dag for det første året.}
+\end{figure}
 
+\begin{figure}[ht]
+\centering
+\scriptsize
+\begin{lstlisting}
 def test_e_and_b():
     AXLE_WEIGHT = 'AxleWeight'
     AXLE_DISTANCE = 'AxleDistance'
@@ -79,12 +83,21 @@ def test_e_and_b():
 
     assert e == calculated_e
     assert b == calculated_b
+\end{lstlisting}
+\caption{Test for beregning av E og B. Generer et datasett med forhåndsbestemte akselvekter og akselavstander, og beregner deretter E og B "manuelt".}
+\end{figure}
 
-
+\begin{figure}[ht]
+\centering
+\scriptsize
+\begin{lstlisting}
 def test_calculate_c():
     num_rows = np.random.randint(50000, 100000)
     random_axles = np.random.randint(2, 11, size=num_rows)
     df = pl.DataFrame({AXLES_COUNT: random_axles})
     expected_c = random_axles.mean()
     calculated_c = road_wear_indicators.calculate_c(df)
-    assert isclose(calculated_c, expected_c, rel_tol=5e-3) # tar hånd om avrundingsfeil opp til 0.5% avvik
+    assert isclose(calculated_c, expected_c, rel_tol=5e-3) # avrundingsfeil opp til 0.5% avvik
+\end{lstlisting}
+\caption{Test for beregning av C. Generer et datasett med tilfeldig antall aksler per kjøretøy, og beregner deretter snittet av antall aksler per kjøretøy.}
+\end{figure}

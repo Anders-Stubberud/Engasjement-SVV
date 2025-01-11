@@ -2,7 +2,24 @@
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{booktabs}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
 \usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{amsmath}
+
+            \lstset{
+                language=Python,
+                backgroundcolor=\color{white}, % Set background color for code
+                basicstyle=\ttfamily, % Set font for code
+                keywordstyle=\color{blue}, % Color for keywords
+                commentstyle=\color{green}, % Color for comments
+                stringstyle=\color{red}, % Color for strings
+                showstringspaces=false, % Don't show spaces in strings
+                breaklines=true, % Break long lines
+                frame=single % Add frame around code
+            }
+        
 \usepackage{tocloft}
 \usepackage[norsk]{babel}
 \usepackage[a4paper, left=20mm, right=20mm, top=25mm, bottom=25mm]{geometry}
@@ -11,6 +28,7 @@
 \title{Supplerende beregninger\\Forskjell ved endring av klassifisering for tunge kjøretøy}
 \author{Anders V. Stubberud}
 \maketitle
+\tableofcontents
 \input{input.tex}
 \begin{table}[H]
 \centering
@@ -29,4 +47,5 @@ Skibotn & 0.34 & 0.44 & 1076656.13 & 1069230.53 & 229.33 & 154.43 & 0.32 & 0.38 
 }
 \caption{Forskjell ved endring av klassifisering for tunge kjøretøy}
 \end{table}
+\input{validering.tex}
 \end{document}

@@ -255,6 +255,10 @@ def generate_latex_with_table(
         with open(output_dir / "input.tex", "w") as f:
             pass
 
+    if not os.path.exists(output_dir / "validering.tex"):
+        with open(output_dir / "input.tex", "w") as f:
+            pass
+
     latex_file = output_dir / f"{filename}.tex"
 
     # Generate LaTeX code for the table
@@ -272,7 +276,27 @@ def generate_latex_with_table(
         f.write(r"\usepackage{graphicx}" + "\n")
         f.write(r"\usepackage{float}" + "\n")  # For H specifier
         f.write(r"\usepackage{booktabs}" + "\n")
+        f.write(r"\usepackage[utf8]{inputenc}" + "\n")
+        f.write(r"\usepackage{listings}" + "\n")
         f.write(r"\usepackage{graphicx}" + "\n")
+        f.write(r"\usepackage{xcolor}" + "\n")
+        f.write(r"\usepackage{amsmath}" + "\n")
+        f.write(
+            r"""
+            \lstset{
+                language=Python,
+                backgroundcolor=\color{white}, % Set background color for code
+                basicstyle=\ttfamily, % Set font for code
+                keywordstyle=\color{blue}, % Color for keywords
+                commentstyle=\color{green}, % Color for comments
+                stringstyle=\color{red}, % Color for strings
+                showstringspaces=false, % Don't show spaces in strings
+                breaklines=true, % Break long lines
+                frame=single % Add frame around code
+            }
+        """
+            + "\n"
+        )
         f.write(r"\usepackage{tocloft}" + "\n")  # Optional: for TOC styling
         f.write(r"\usepackage[norsk]{babel}" + "\n")  # Norwegian language
         f.write(
@@ -286,8 +310,10 @@ def generate_latex_with_table(
         f.write(f"\\title{{{title.replace('\n', '\\\\')}}}\n")
         f.write(r"\author{Anders V. Stubberud}" + "\n")
         f.write(r"\maketitle" + "\n")
+        f.write(r"\tableofcontents" + "\n")
         f.write(r"\input{input.tex}" + "\n")
         f.write(latex_table_code)
+        f.write(r"\input{validering.tex}" + "\n")
         f.write(r"\end{document}" + "\n")
 
     try:
