@@ -2,8 +2,7 @@
 # drive.mount('/content/drive')
 
 """
-NB! Klarte ikke å kjøre denne koden lokalt (max'et ut minne), så kjørte den i Google Colab med TPU ~ 330GB RAM.
-Denne koden er dermed noe utdatert, har jobbet mest i colab.
+Har også kjørt en del av denne koden i Colab på TPU m/ > 300 GB RAM pga problemer med å maxx'e ut minne lokalt 
 https://drive.google.com/drive/folders/1-Kx4B3vWme7ivE9TuTiT6X6kivBYe4yA?dmr=1&ec=wgc-drive-globalnav-goto
 """
 
@@ -28,6 +27,7 @@ import csv
 import os
 import shutil
 from datetime import datetime
+from pathlib import Path
 from typing import Tuple
 
 import numpy as np
@@ -53,17 +53,17 @@ NEW_LIMIT_HEAVY_VEHICLE = 7.5
 MILLISECONDS_IN_YEAR = 1000 * 60 * 60 * 24 * 365
 P = 1  # P er forventet årlig trafikkvekst for tunge kjøretøy, antar her at trafikkveksten holder seg konstant
 
-RUNTIME = 'colab'
+RUNTIME = "local"
 
-if RUNTIME == 'local':
-    raw_data_dir = config.INTERIM_DATA_DIR / 'WIM_flat_folder'
-    interim_data_dir = config.INTERIM_DATA_DIR / 'WIM_grouped'
-    processed_data_dir = config.PROCESSED_DATA_DIR / 'WIM road wear factors'
+if RUNTIME == "local":
+    raw_data_dir = config.INTERIM_DATA_DIR / "WIM_flat_folder"
+    interim_data_dir = config.INTERIM_DATA_DIR / "WIM_grouped"
+    processed_data_dir = config.PROCESSED_DATA_DIR / "WIM road wear factors"
 
-if RUNTIME == 'colab':
-    basedir = Path('/content/drive/My Drive/Engasjement SVV')
-    raw_data_dir = basedir / 'WIM_flat_folder'
-    interim_data_dir = basedir / 'WIM_merged'
+if RUNTIME == "colab":
+    basedir = Path("/content/drive/My Drive/Engasjement SVV")
+    raw_data_dir = basedir / "WIM_flat_folder"
+    interim_data_dir = basedir / "WIM_merged"
     processed_data_dir = basedir
 
 os.makedirs(raw_data_dir, exist_ok=True)
@@ -190,7 +190,7 @@ def calculate_e_and_b(df: pl.DataFrame) -> Tuple[float, float]:
     e = np.sum((weights_single_axles_all_vehicles / 10) ** 4) / len(
         weights_single_axles_all_vehicles
     )
-    b = sigma_esals / nkjt
+    b = sigma_esals / ngrp
 
     return e, b
 
@@ -378,85 +378,88 @@ def merge_dfs_similar_location():
         "AxleDistance": (0, 10),
         "AxleWeight": (0, 15000),
     }
-    for root, _, files in tqdm(list(os.walk(raw_data_dir)), desc="Processing files"):
-        for file in files:
+    for root, _, files in os.walk(raw_data_dir):
+        for file in tqdm(files, desc="Processing files"):
             if file.endswith(".csv"):
                 try:
                     absolute_path = os.path.abspath(os.path.join(root, file))
-                    df = pd.read_csv(
+                    for df in pd.read_csv(
                         absolute_path,
                         skiprows=6,
                         sep=";",
+                        chunksize=10000,
                         on_bad_lines="skip",
                         low_memory=False,
-                    )
+                    ):
 
-                    df.columns = [col.replace(" ", "") for col in df.columns]
+                        df.columns = [col.replace(" ", "") for col in df.columns]
 
-                    # Define required columns
-                    numerical_required_columns = (
-                        [VEHICLE_LENGTH, AXLES_COUNT]
-                        + [
-                            f"{AXLE_DISTANCE}{i}" for i in range(1, 11)
-                        ]  # for å unngå store frames; antar kun kjøretøy m/ <= 10 aksler
-                        + [f"{AXLE_WEIGHT}{i}" for i in range(1, 11)]
-                    )
-                    all_required_columns = numerical_required_columns + [STARTTIME]
+                        # Define required columns
+                        numerical_required_columns = (
+                            [VEHICLE_LENGTH, AXLES_COUNT]
+                            + [
+                                f"{AXLE_DISTANCE}{i}" for i in range(1, 11)
+                            ]  # for å unngå store frames; antar kun kjøretøy m/ <= 10 aksler
+                            + [f"{AXLE_WEIGHT}{i}" for i in range(1, 11)]
+                        )
+                        all_required_columns = numerical_required_columns + [STARTTIME]
 
-                    missing_columns = [
-                        col for col in all_required_columns if col not in df.columns
-                    ]
-                    missing_data = {col: np.nan for col in missing_columns}
+                        missing_columns = [
+                            col for col in all_required_columns if col not in df.columns
+                        ]
+                        missing_data = {col: np.nan for col in missing_columns}
 
-                    if missing_data:
-                        # Create missing columns with NaN values and correct index
-                        df_missing = pd.DataFrame(missing_data, index=df.index)
-                        df = pd.concat([df, df_missing], axis=1)
+                        if missing_data:
+                            # Create missing columns with NaN values and correct index
+                            df_missing = pd.DataFrame(missing_data, index=df.index)
+                            df = pd.concat([df, df_missing], axis=1)
 
-                    df = df[all_required_columns]
-                    numerical_df = df[numerical_required_columns]
-                    non_numerical_df = df.drop(columns=numerical_required_columns)
+                        df = df[all_required_columns]
+                        numerical_df = df[numerical_required_columns]
+                        non_numerical_df = df.drop(columns=numerical_required_columns)
 
-                    # Apply coercion only to numerical columns
-                    numerical_df = numerical_df.apply(pd.to_numeric, errors="coerce")
+                        # Apply coercion only to numerical columns
+                        numerical_df = numerical_df.apply(pd.to_numeric, errors="coerce")
 
-                    # Concatenate the coerced numerical columns with the non-numerical ones
-                    df = pd.concat([numerical_df, non_numerical_df], axis=1)
+                        # Concatenate the coerced numerical columns with the non-numerical ones
+                        df = pd.concat([numerical_df, non_numerical_df], axis=1)
 
-                    df = df[
-                        (df["VehicleLength"] >= valid_ranges["VehicleLength"][0])
-                        & (df["VehicleLength"] <= valid_ranges["VehicleLength"][1])
-                    ]
-                    df = df[
-                        (df["AxlesCount"] >= valid_ranges["AxlesCount"][0])
-                        & (df["AxlesCount"] <= valid_ranges["AxlesCount"][1])
-                    ]
+                        df = df[
+                            (df["VehicleLength"] >= valid_ranges["VehicleLength"][0])
+                            & (df["VehicleLength"] <= valid_ranges["VehicleLength"][1])
+                        ]
+                        df = df[
+                            (df["AxlesCount"] >= valid_ranges["AxlesCount"][0])
+                            & (df["AxlesCount"] <= valid_ranges["AxlesCount"][1])
+                        ]
 
-                    for col in df.columns:
-                        if col.startswith("AxleDistance"):
-                            df = df[
-                                (
-                                    (df[col] >= valid_ranges["AxleDistance"][0])
-                                    & (df[col] <= valid_ranges["AxleDistance"][1])
-                                )
-                                | df[col].isna()
-                            ]
+                        for col in df.columns:
+                            if col.startswith("AxleDistance"):
+                                df = df[
+                                    (
+                                        (df[col] >= valid_ranges["AxleDistance"][0])
+                                        & (df[col] <= valid_ranges["AxleDistance"][1])
+                                    )
+                                    | df[col].isna()
+                                ]
 
-                        elif col.startswith("AxleWeight"):
-                            df = df[
-                                (
-                                    (df[col] >= valid_ranges["AxleWeight"][0])
-                                    & (df[col] <= valid_ranges["AxleWeight"][1])
-                                )
-                                | df[col].isna()
-                            ]
-                    print(file, len(df))
-                    df.to_csv(
-                        os.path.join(interim_data_dir, f"{extract_location(absolute_path)}.csv"),
-                        mode="a",
-                        header=False,
-                        index=False,
-                    )
+                            elif col.startswith("AxleWeight"):
+                                df = df[
+                                    (
+                                        (df[col] >= valid_ranges["AxleWeight"][0])
+                                        & (df[col] <= valid_ranges["AxleWeight"][1])
+                                    )
+                                    | df[col].isna()
+                                ]
+
+                        df.to_csv(
+                            os.path.join(
+                                interim_data_dir, f"{extract_location(absolute_path)}.csv"
+                            ),
+                            mode="a",
+                            header=False,
+                            index=False,
+                        )
 
                 except Exception as e:
                     print(f"Error reading {file_path}: {e}")
