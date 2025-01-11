@@ -27,7 +27,7 @@ https://drive.google.com/drive/folders/1-Kx4B3vWme7ivE9TuTiT6X6kivBYe4yA?dmr=1&e
 import csv
 import os
 import shutil
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Tuple
 
 import numpy as np
@@ -53,11 +53,22 @@ NEW_LIMIT_HEAVY_VEHICLE = 7.5
 MILLISECONDS_IN_YEAR = 1000 * 60 * 60 * 24 * 365
 P = 1  # P er forventet årlig trafikkvekst for tunge kjøretøy, antar her at trafikkveksten holder seg konstant
 
-raw_data_dir = config.RAW_DATA_DIR
-interim_data_dir = config.INTERIM_DATA_DIR
-# basedir = Path('/content/drive/My Drive/Engasjement SVV')
-# raw_data_dir = basedir / 'WIM_flat_folder'
-# interim_data_dir = basedir / 'WIM_merged'
+RUNTIME = 'colab'
+
+if RUNTIME == 'local':
+    raw_data_dir = config.INTERIM_DATA_DIR / 'WIM_flat_folder'
+    interim_data_dir = config.INTERIM_DATA_DIR / 'WIM_grouped'
+    processed_data_dir = config.PROCESSED_DATA_DIR / 'WIM road wear factors'
+
+if RUNTIME == 'colab':
+    basedir = Path('/content/drive/My Drive/Engasjement SVV')
+    raw_data_dir = basedir / 'WIM_flat_folder'
+    interim_data_dir = basedir / 'WIM_merged'
+    processed_data_dir = basedir
+
+os.makedirs(raw_data_dir, exist_ok=True)
+os.makedirs(interim_data_dir, exist_ok=True)
+os.makedirs(processed_data_dir, exist_ok=True)
 # endregion
 
 
@@ -190,41 +201,46 @@ def calculate_ådtt(df: pl.DataFrame, start_daterange: datetime = None) -> float
         start_unix = df.select(pl.col(STARTTIME_UNIX).min()).to_numpy()[0, 0]
     else:
         start_unix = int(start_daterange.timestamp() * 1000)  # Convert to milliseconds
-    
+
     # Calculate the end of the first year
     end_unix = start_unix + MILLISECONDS_IN_YEAR
-    
+
     # Filter the dataframe for the first year of data
     heavy_vehicles_first_year = df.filter(
         (pl.col(STARTTIME_UNIX) >= start_unix) & (pl.col(STARTTIME_UNIX) <= end_unix)
     )
-    
+
     # Convert Unix timestamp to date (string format YYYY-MM-DD)
     df = df.with_columns(
-        pl.col(STARTTIME_UNIX).map_elements(
+        pl.col(STARTTIME_UNIX)
+        .map_elements(
             lambda ts: datetime.fromtimestamp(int(ts) / 1000).strftime("%Y-%m-%d"),
             return_dtype=pl.String,
-        ).alias("STARTDATE")
+        )
+        .alias("STARTDATE")
     )
 
     # Filter the data to consider only the first year
     heavy_vehicles_first_year = heavy_vehicles_first_year.with_columns(
-        pl.col(STARTTIME_UNIX).map_elements(
+        pl.col(STARTTIME_UNIX)
+        .map_elements(
             lambda ts: datetime.fromtimestamp(int(ts) / 1000).strftime("%Y-%m-%d"),
             return_dtype=pl.String,
-        ).alias("STARTDATE")
+        )
+        .alias("STARTDATE")
     )
 
     # Get the unique days in the filtered range (first year)
     unique_days_in_range = heavy_vehicles_first_year.select(pl.col("STARTDATE")).n_unique()
-    
+
     # Number of vehicles in the first year
     number_of_heavy_vehicles = heavy_vehicles_first_year.height
-    
+
     # Calculate the average daily traffic
     ådtt = number_of_heavy_vehicles / unique_days_in_range
-    
+
     return ådtt
+
 
 def calculate_factors(
     filepath: str, length_limit_1: float, length_limit_2: float
@@ -336,9 +352,8 @@ def extract_location(filepath):
 
 def merge_dfs_similar_location():
 
-    basepath = config.INTERIM_DATA_DIR / "WIM_grouped"
-    shutil.rmtree(basepath, ignore_errors=True)
-    os.makedirs(basepath, exist_ok=True)
+    shutil.rmtree(interim_data_dir, ignore_errors=True)
+    os.makedirs(interim_data_dir, exist_ok=True)
 
     numerical_required_columns = (
         [VEHICLE_LENGTH, AXLES_COUNT]
@@ -350,7 +365,7 @@ def merge_dfs_similar_location():
     keywords = ["Øysand", "Verdal", "Ånestad (vestgående)", "Ånestad (østgående)", "Skibotn"]
 
     for keyword in keywords:
-        file_path = os.path.join(basepath, f"{keyword}.csv")
+        file_path = os.path.join(interim_data_dir, f"{keyword}.csv")
 
         # Create the file and write the headers
         with open(file_path, "w", newline="", encoding="utf-8") as file:
@@ -363,7 +378,7 @@ def merge_dfs_similar_location():
         "AxleDistance": (0, 10),
         "AxleWeight": (0, 15000),
     }
-    for root, _, files in tqdm(list(os.walk(raw_data_dir / "WIM")), desc="Processing files"):
+    for root, _, files in tqdm(list(os.walk(raw_data_dir)), desc="Processing files"):
         for file in files:
             if file.endswith(".csv"):
                 try:
@@ -372,7 +387,6 @@ def merge_dfs_similar_location():
                         absolute_path,
                         skiprows=6,
                         sep=";",
-                        nrows=100000,
                         on_bad_lines="skip",
                         low_memory=False,
                     )
@@ -438,7 +452,7 @@ def merge_dfs_similar_location():
                             ]
                     print(file, len(df))
                     df.to_csv(
-                        os.path.join(basepath, f"{extract_location(absolute_path)}.csv"),
+                        os.path.join(interim_data_dir, f"{extract_location(absolute_path)}.csv"),
                         mode="a",
                         header=False,
                         index=False,
@@ -450,11 +464,11 @@ def merge_dfs_similar_location():
 
 def do_calculations():
     datasets = [
-        interim_data_dir / "WIM_grouped" / "Øysand.csv",
-        interim_data_dir / "WIM_grouped" / "Verdal.csv",
-        interim_data_dir / "WIM_grouped" / "Ånestad (vestgående).csv",
-        interim_data_dir / "WIM_grouped" / "Ånestad (østgående).csv",
-        interim_data_dir / "WIM_grouped" / "Skibotn.csv",
+        interim_data_dir / "Øysand.csv",
+        interim_data_dir / "Verdal.csv",
+        interim_data_dir / "Ånestad (vestgående).csv",
+        interim_data_dir / "Ånestad (østgående).csv",
+        interim_data_dir / "Skibotn.csv",
     ]
 
     headers = [
@@ -492,8 +506,7 @@ def do_calculations():
 
     df = pl.DataFrame(schema=headers, data=results, orient="row")
 
-    df.write_csv(config.PROCESSED_DATA_DIR / "WIM road wear factors/WIM_road_wear_factors.csv")
-    # df.write_csv(basedir / 'WIM_road_wear_indicators.csv')
+    df.write_csv(processed_data_dir / "WIM_road_wear_factors.csv")
 
 
 def main():
