@@ -1,3 +1,6 @@
+from google.colab import drive
+drive.mount('/content/drive')
+
 # ---
 # jupyter:
 #   jupytext:
@@ -15,16 +18,14 @@
 # Imports
 
 import os
-import re
-import pandas as pd
 from datetime import datetime
 from typing import Tuple
-from tqdm import tqdm
-
+from pathlib import Path
 import numpy as np
+import pandas as pd
+!pip install polars
 import polars as pl
-
-from source import config
+from tqdm import tqdm
 
 # region Konstanter
 
@@ -42,61 +43,22 @@ NEW_LIMIT_HEAVY_VEHICLE = 7.5
 MILLISECONDS_IN_YEAR = 1000 * 60 * 60 * 24 * 365
 P = 1  # P er forventet årlig trafikkvekst for tunge kjøretøy, antar her at trafikkveksten holder seg konstant
 
+basedir = Path('/content/drive/My Drive/Engasjement SVV')
+raw_data_dir = basedir / 'WIM_flat_folder'
+interim_data_dir = basedir / 'WIM_merged_new'
 # endregion
 
 
 def determine_f(dataset):
+    dataset = str(dataset)
     if "Øysand" in dataset:
         return 0.5  # antar 2-feltsveg basert på google-streetview bilder fra området rundt øysand, vet ikke nøyaktig hvor sensoren er
     if "Skibotn" in dataset:
         return 0.5  # antar 2-feltsveg basert på google-streetview bilder fra området rundt skibotn, vet ikke nøyaktig hvor sensoren er
     if "Verdal" in dataset:
         return 0.5  # antar 2-feltsveg basert på google-streetview bilder fra området rundt verdal, vet ikke nøyaktig hvor sensoren er
-    if "Aanestad" in dataset:
+    if "Aanestad" in dataset or 'Ånestad' in dataset:
         return 0.45  # antar 4-feltsveg basert på google-streetview bilder fra området rundt Ånestad, vet ikke nøyaktig hvor sensoren er
-
-
-datasets = (
-    "../WIM-data/Kistler_Øysand/20160808-31_Kistler Øysand_4913151-export(1).csv",
-    "../WIM-data/Kistler_Øysand/20160901-30_Kistler Øysand_4913151-export(2).csv",
-    "../WIM-data/Kistler_Øysand/20161001-31_Kistler Øysand_4913151-export(3)-fixed.csv",
-    "../WIM-data/Kistler_Øysand/20161101-30_Kistler Øysand_4913151-export(4).csv",
-    "../WIM-data/Kistler_Øysand/20161201-31_Kistler Øysand_4913151-export(5).csv",
-    "../WIM-data/Kistler_Øysand/20170101-31_Kistler Øysand_4913151-export(6).csv",
-    "../WIM-data/Kistler_Øysand/20170201-28_Kistler Øysand_4913151-export(7).csv",
-    "../WIM-data/Kistler_Øysand/20170301-31_Kistler Øysand_4913151-export(8).csv",
-    "../WIM-data/Kistler_Øysand/20170401-05_Kistler Øysand_4913151-export(9)-fixed.csv",
-    "../WIM-data/Kistler_Øysand/20180316_1.3.1_Kistler Øysand_4913151-export(24).csv",
-    "../WIM-data/Kistler_Øysand/20180401-30_Kistler Øysand_4796227-export(12).csv",
-    "../WIM-data/Kistler_Øysand/20180501-31(21-26)_Kistler Øysand_4796227-export(13).csv",
-    "../WIM-data/Kistler_Øysand/20180601-30(11-30)_Kistler Øysand_4796227-export(14).csv",
-    "../WIM-data/Kistler_Øysand/20180701-31(01-11)_Kistler Øysand_4796227-export(15).csv",
-    "../WIM-data/Kistler_Øysand/20180801-31(10-31)_Kistler Øysand_4796227-export(16).csv",
-    "../WIM-data/Kistler_Øysand/20180901-30_Kistler Øysand 4796227-export(17).csv",
-    "../WIM-data/Kistler_Skibotn/combinedFiles_E8_2018_kalibrert_4okt.csv",
-    "../WIM-data/Kistler_Skibotn/combinedFiles_E8_2019.csv",
-    "../WIM-data/Kistler_Skibotn/combinedFiles_E8_2020.csv",
-    "../WIM-data/Kistler_Verdal/20150513-20150531_Kistler Verdal 4796227.csv",
-    "../WIM-data/Kistler_Verdal/20150601-20150630_Kistler Verdal 4796227.csv",
-    "../WIM-data/Kistler_Verdal/20150701-20150731_Kistler Verdal 4796227.csv",
-    "../WIM-data/Kistler_Verdal/20150801-20150831_Kistler Verdal 4796227.csv",
-    "../WIM-data/Kistler_Verdal/20150901-20150930_Kistler Verdal 4796227.csv",
-    "../WIM-data/Kistler_Verdal/20151001-20151031_Kistler Verdal 4796227.csv",
-    "../WIM-data/Kistler_Verdal/20151101-20151130_Kistler Verdal 4796227.csv",
-    "../WIM-data/Kistler_Verdal/20151201-20151231_Kistler Verdal 4796227.csv",
-    "../WIM-data/Kistler_Verdal/20160101-20160131_Kistler Verdal 4796227.csv",
-    "../WIM-data/Kistler_Verdal/20160201-20160229_Kistler Verdal 4796227.csv",
-    "../WIM-data/Kistler_Verdal/20160301-20160331_Kistler Verdal 4796227.csv",
-    "../WIM-data/Kistler_Verdal/20160401-20160430_Kistler Verdal 4796227.csv",
-    "../WIM-data/Kistler_Verdal/20160501-20160531_Kistler Verdal 4796227.csv",
-    "../WIM-data/Kistler_Aanestad/20221014-20 Kistler_R3_ostg.csv",
-    "../WIM-data/Kistler_Aanestad/20221014-20 Kistler_R3_vestg.csv",
-    "../WIM-data/Kistler_Aanestad/20231001-20240123_Aanestad_Ostgående.csv",
-    "../WIM-data/Kistler_Aanestad/20231001-20240123_Aanestad_Vestgående.csv",
-    "../WIM-data/Kistler_Aanestad/20240122-20240612_R3 vestgående.csv",
-    "../WIM-data/Kistler_Aanestad/20240123-20240612_R3 østgående.csv",
-)
-
 
 def calculate_n(c, e, ådtt, f, p):
     return 365 * c * e * ådtt * f * ((1 + 0.01 * p) ** 20 - 1) / (0.01 * p)
@@ -128,40 +90,39 @@ def calculate_e_and_b(df: pl.DataFrame) -> Tuple[float, float]:
         Float's som representerer E og B-faktor.
     """
 
-    def calculate_esal_and_number_of_axel_groups(df: pl.DataFrame) -> float:
-
-        def calculate_esal_individual(row: tuple) -> float:
-
+    def calculate_esal_and_number_of_axel_groups(df: pl.DataFrame):
+        def calculate_esal_individual(row: tuple):
             def k_value(axles: int) -> float:
                 return 1 if axles == 1 else (10 / (6 + 6 * axles)) ** 4
 
             def row_has_axle(row, axle):
                 return (
                     f"{AXLE_DISTANCE}{axle}" in row
-                    and row[f"{AXLE_DISTANCE}{axle}"] != None
-                    and row[f"{AXLE_WEIGHT}{axle}"] != None
+                    and row[f"{AXLE_DISTANCE}{axle}"] is not None
+                    and row[f"{AXLE_WEIGHT}{axle}"] is not None
                 )
 
             def store_previous_axle_group(weight_in_group, axles_in_group):
                 nonlocal weights, k_values
-                weights = np.append(weights, weight_in_group)
-                k_values = np.append(k_values, k_value(axles_in_group))
+                weights.append(weight_in_group)
+                k_values.append(k_value(axles_in_group))
 
-            weights = np.array([])
-            k_values = np.array([])
+            weights_single_axles_single_vehicle = []  # Use lists instead of np.append
+            weights = []  # Use lists instead of np.append
+            k_values = []  # Use lists instead of np.append
 
             axle = 1
             axles_in_group = 0
             weight_in_group = 0
 
             while row_has_axle(row, axle):
+                weights_single_axles_single_vehicle.append(float(row[f"{AXLE_WEIGHT}{axle}"]) / 1000)
 
                 distance_from_previous_axle = float(row[f"{AXLE_DISTANCE}{axle}"])
 
                 if distance_from_previous_axle <= LIMIT_AXLES_SAME_GROUP:
                     axles_in_group += 1
                     weight_in_group += float(row[f"{AXLE_WEIGHT}{axle}"]) / 1000
-
                 else:
                     store_previous_axle_group(weight_in_group, axles_in_group)
                     axles_in_group = 1
@@ -171,27 +132,30 @@ def calculate_e_and_b(df: pl.DataFrame) -> Tuple[float, float]:
 
             store_previous_axle_group(weight_in_group, axles_in_group)
 
-            return weights, k_values
+            return weights, k_values, weights_single_axles_single_vehicle
 
-        esal_values_individual_vehicles = np.array([])
-        number_of_axel_groups = (
-            0  # ngrp, antall akselgrupper (dvs. enkeltaksler + boggiaksler + trippelaksler osv.)
-        )
+        weights_single_axles_all_vehicles = []  # Use lists instead of np.append
+        esal_values_individual_vehicles = []  # Use lists instead of np.append
+        number_of_axel_groups = 0  # Number of axle groups
 
-        for row in df.iter_rows(named=True):
-            weights, k_values = calculate_esal_individual(row)
-            esal_values_individual_vehicles = np.append(
-                esal_values_individual_vehicles, np.sum((weights / 10) ** 4 * k_values)
-            )
+        for row in tqdm(list(df.iter_rows(named=True)), 'Iterating rows'):
+            weights, k_values, singe_axle_weights = calculate_esal_individual(row)
+
+            # Convert weights and k_values to numpy arrays to perform operations
+            weights = np.array(weights)
+            k_values = np.array(k_values)
+
+            weights_single_axles_all_vehicles.extend(singe_axle_weights)  # Use list extend to add multiple items
+            esal_values_individual_vehicles.append(np.sum((weights / 10) ** 4 * k_values))
             number_of_axel_groups += len(weights)
 
-        return esal_values_individual_vehicles, number_of_axel_groups
+        return esal_values_individual_vehicles, number_of_axel_groups, np.array(weights_single_axles_all_vehicles)
 
-    esals, ngrp = calculate_esal_and_number_of_axel_groups(df)  # ngrp er antall akselgrupper
+    esals, ngrp, weights_single_axles_all_vehicles = calculate_esal_and_number_of_axel_groups(df)
     sigma_esals = np.sum(esals)
-    nkjt = len(df)  # antall kjøretøy
+    nkjt = len(df)  # Number of vehicles
 
-    e = sigma_esals / ngrp
+    e = np.sum((weights_single_axles_all_vehicles / 10)**4) / len(weights_single_axles_all_vehicles)
     b = sigma_esals / nkjt
 
     return e, b
@@ -264,7 +228,7 @@ def calculate_factors(
         filepath: str, length_limit
     ) -> Tuple[float, float, float]:
         df = pl.read_csv(
-            filepath, skip_rows=6, separator=";", truncate_ragged_lines=True, ignore_errors=True
+            filepath, separator=",", truncate_ragged_lines=True, ignore_errors=True
         )
         df = df.filter(pl.col(VEHICLE_LENGTH) >= length_limit)
         df = df.with_columns(
@@ -280,12 +244,12 @@ def calculate_factors(
         f = determine_f(filepath)
         n = calculate_n(c, e, ådtt, f, P)
 
-        return n, ådtt, b, earliest_date, latest_date
+        return n, ådtt, b, earliest_date, latest_date, e, c
 
-    n_1, ådtt_1, b_1, startdate, enddate = calculate_factors_individual_lengthlimit(
+    n_1, ådtt_1, b_1, startdate, enddate, e1, c1 = calculate_factors_individual_lengthlimit(
         filepath, length_limit_1
     )
-    n_2, ådtt_2, b_2, _, _ = calculate_factors_individual_lengthlimit(filepath, length_limit_2)
+    n_2, ådtt_2, b_2, _, _, e2, c2 = calculate_factors_individual_lengthlimit(filepath, length_limit_2)
 
     absolute_change_n = n_2 - n_1
     relative_change_n = ((n_2 - n_1) / n_1) * 100
@@ -309,6 +273,10 @@ def calculate_factors(
         b_2,
         absolute_change_b,
         relative_change_b,
+        e1,
+        e2,
+        c1,
+        c2
     )
 
     result = tuple(round(value, 2) for value in result)
@@ -317,15 +285,14 @@ def calculate_factors(
 
 
 def extract_location(filepath):
-    if "Aanestad" in filepath and ("Vest" in filepath or "vest" in filepath):
+    filepath = str(filepath)
+    if 'vestg' in filepath or 'Vestgående' in filepath or 'vestgående' in filepath:
         return "Ånestad (vestgående)"
-    if "Aanestad" in filepath and (
-        "Ost" in filepath or "ost" in filepath or "Øst" in filepath or "øst" in filepath
-    ):
+    if 'ostg' in filepath or 'Ostgående' in filepath or 'østgående' in filepath:
         return "Ånestad (østgående)"
     if "Øysand" in filepath:
         return "Øysand"
-    if "Skibotn" in filepath:
+    if "Skibotn" in filepath or "combinedFiles_E8" in filepath:
         return "Skibotn"
     if "Verdal" in filepath:
         return "Verdal"
@@ -334,15 +301,22 @@ def extract_location(filepath):
 def merge_dfs_similar_location():
     datasets = []
 
-    for root, _, files in os.walk(config.RAW_DATA_DIR / "WIM"):
+    for root, _, files in os.walk(raw_data_dir):
         for file in files:
             if file.endswith(".csv"):
                 absolute_path = os.path.abspath(os.path.join(root, file))
                 datasets.append(absolute_path)
 
     keywords = ["Øysand", "Verdal", "Ånestad (vestgående)", "Ånestad (østgående)", "Skibotn"]
-    
+
     dataframes = {key: [] for key in keywords}
+
+    valid_ranges = {
+        'VehicleLength': (0, 30),
+        'AxlesCount': (0, 10),
+        'AxleDistance': (0, 10),
+        'AxleWeight': (0, 15000)
+    }
 
     for file_path in tqdm(datasets, desc="Processing files"):
         for keyword in keywords:
@@ -353,7 +327,7 @@ def merge_dfs_similar_location():
                         file_path,
                         skiprows=6,
                         sep=";",
-                        nrows=50000,
+                        # nrows=1000,
                         on_bad_lines="skip",
                         low_memory=False,
                     )
@@ -361,10 +335,16 @@ def merge_dfs_similar_location():
                     df.columns = [col.replace(" ", "") for col in df.columns]
 
                     # Define required columns
-                    numerical_required_columns = [VEHICLE_LENGTH, AXLES_COUNT] + [f"{AXLE_DISTANCE}{i}" for i in range(1, 65)] + [f"{AXLE_WEIGHT}{i}" for i in range(1, 65)]
+                    numerical_required_columns = (
+                        [VEHICLE_LENGTH, AXLES_COUNT]
+                        + [f"{AXLE_DISTANCE}{i}" for i in range(1, 11)] # for å unngå store frames; antar kun kjøretøy m/ <= 10 aksler
+                        + [f"{AXLE_WEIGHT}{i}" for i in range(1, 11)]
+                    )
                     all_required_columns = numerical_required_columns + [STARTTIME]
 
-                    missing_columns = [col for col in all_required_columns if col not in df.columns]
+                    missing_columns = [
+                        col for col in all_required_columns if col not in df.columns
+                    ]
                     missing_data = {col: np.nan for col in missing_columns}
 
                     if missing_data:
@@ -373,47 +353,73 @@ def merge_dfs_similar_location():
                         df = pd.concat([df, df_missing], axis=1)
 
                     df = df[all_required_columns]
+                    numerical_df = df[numerical_required_columns]
+                    non_numerical_df = df.drop(columns=numerical_required_columns)
 
-                    df_coerced = df[numerical_required_columns].apply(pd.to_numeric, errors='coerce')
+                    # Apply coercion only to numerical columns
+                    numerical_df = numerical_df.apply(pd.to_numeric, errors="coerce")
 
-                    mask = df_coerced.isna() & df[numerical_required_columns].notna()
+                    # Concatenate the coerced numerical columns with the non-numerical ones
+                    df = pd.concat([numerical_df, non_numerical_df], axis=1)
 
-                    df_cleaned = df[~mask]
-                    dataframes[keyword].append(df_cleaned)
+                    df = df[(df['VehicleLength'] >= valid_ranges['VehicleLength'][0]) & (df['VehicleLength'] <= valid_ranges['VehicleLength'][1])]
+                    df = df[(df['AxlesCount'] >= valid_ranges['AxlesCount'][0]) & (df['AxlesCount'] <= valid_ranges['AxlesCount'][1])]
+
+                    for col in df.columns:
+                        if col.startswith('AxleDistance'):
+                            df = df[
+                                ((df[col] >= valid_ranges['AxleDistance'][0]) & (df[col] <= valid_ranges['AxleDistance'][1])) | df[col].isna()
+                            ]
+
+                        elif col.startswith('AxleWeight'):
+                            df = df[
+                                ((df[col] >= valid_ranges['AxleWeight'][0]) & (df[col] <= valid_ranges['AxleWeight'][1])) | df[col].isna()
+                            ]
+
+                    dataframes[keyword].append(df)
 
                 except Exception as e:
                     print(f"Error reading {file_path}: {e}")
 
     # Combine dataframes for each keyword
     grouped_dfs = {
-        key: pd.concat([df.dropna(axis=1, how='all') for df in dataframes[key]], ignore_index=True)
-        for key in dataframes if dataframes[key]
+        key: pd.concat([df.dropna(axis=1, how="all") for df in dataframes[key]], ignore_index=True)
+        for key in dataframes
+        if dataframes[key]
     }
 
-
     # Write the resulting DataFrames to CSV
-    interim_storage = config.INTERIM_DATA_DIR / "WIM"
-    os.makedirs(interim_storage, exist_ok=True)
+    os.makedirs(interim_data_dir, exist_ok=True)
 
     for key, df in grouped_dfs.items():
-        df.to_csv(interim_storage / f"{key}.csv", index=False)
+        df.to_csv(interim_data_dir / f"{key}.csv", index=False)
+
 
 def main():
+
     merge_dfs_similar_location()
-    # headers = ["Sted", "Startdato", "Sluttdato", "N 5.6", "N 7.5", "Absolutt endring i N", "Prosentvis endring i N",
-    #         "ÅDTT 5.6", "ÅDTT 7.5", "Absolutt endring i ÅDTT", "Prosentvis endring i ÅDTT",
-    #             "B-faktor 5.6", "B-faktor 7.5", "Absolutt endring i B-faktor", "Prosentvis endring i B-faktor"]
 
-    # for dataset in datasets:
-    #     try:
-    #         location = extract_location(dataset)
+    datasets = [
+        interim_data_dir / "Øysand.csv",
+        interim_data_dir / "Verdal.csv",
+        interim_data_dir / "Ånestad (vestgående).csv",
+        interim_data_dir / "Ånestad (østgående).csv",
+        interim_data_dir / "Skibotn.csv",
+    ]
 
-    #         results = (location, *calculate_factors(dataset, OLD_LIMIT_HEAVY_VEHICLE, NEW_LIMIT_HEAVY_VEHICLE))
+    headers = ["Sted", "Startdato", "Sluttdato", "N 5.6", "N 7.5", "Absolutt endring i N", "Prosentvis endring i N",
+               "ÅDTT 5.6", "ÅDTT 7.5", "Absolutt endring i ÅDTT", "Prosentvis endring i ÅDTT",
+               "B-faktor 5.6", "B-faktor 7.5", "Absolutt endring i B-faktor", "Prosentvis endring i B-faktor",
+               'E 5.6', 'E 7.5', 'C 5.6', 'C 7.5'
+    ]
 
-    #         df = pl.DataFrame(schema=headers, data=results)
-    #         df.write_csv('../resultater/n_påvirkning_klassifisering.csv')
-    #     except:
-    #         pass
+    results = []
 
-if __name__ == "__main__":
-    main()
+    for dataset in datasets:
+        location = extract_location(dataset)
+        results.append((location, *calculate_factors(dataset, OLD_LIMIT_HEAVY_VEHICLE, NEW_LIMIT_HEAVY_VEHICLE)))
+
+    df = pl.DataFrame(schema=headers, data=results, orient='row')
+    df.write_csv(basedir / 'WIM_road_wear_indicators.csv')
+
+main()

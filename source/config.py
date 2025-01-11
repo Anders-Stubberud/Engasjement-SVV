@@ -43,6 +43,8 @@ MODE_VEHICLE_WEIGHT_74T = 3
 VEHICLE_WEIGHT_DIR_74T = REPORTS_DIR / "vehicle_weight_74t"
 VEHICLE_WEIGHT_FIGURES_DIR_74T = VEHICLE_WEIGHT_DIR_74T / "figures"
 
+MODE_WIM_ROAD_WEAR_INDICATORS = 4
+WIM_ROAD_WEAR_INDICATORS_DIR = REPORTS_DIR / "wim_road_wear_indicators"
 # endregion
 ##################################################
 

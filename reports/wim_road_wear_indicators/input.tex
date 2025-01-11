@@ -1,0 +1,57 @@
+\section{Intensjon}
+Intensjonen er å finne verdier for trafikkbelastnings-faktorene B-faktor (etter det svenske beregningsgrunlaget) 
+og N (hvilket avhenger av C, E, og ÅDTT, så disse er også inkludert) for to ulike klassifiseringer av tunge kjøretøy; 5.6m og 7.5m.
+Datagrunnlaget er hentet inn fra WIM-installasjonene på Ånestad, Øysand, Skibotn, og Verdal. 
+
+
+\section{Fremgangsmåte}
+\subsection{N, C, E, og ÅDTT}
+\(N\) er produktet av følgende faktorer:
+\[
+N = 365 \times C \times E \times ÅDTT \times f \times \frac{(1 + 0.01p)^{20} - 1}{0.01p}
+\]
+hvor:
+\begin{itemize}
+    \item \(C\): Gjennomsnittlig antall aksler per tunge kjøretøy. 
+    Ved å filtrere vekk kjøretøy som ikke tilfredsstiller klassifiseringen av tunge kjøretøy, 
+    ble dette snittet funnet ved å hente ut kolonnen for antall aksler per kjøretøy, summere den, og deretter dele på lengden av den.
+    \item \(E\): Gjennomsnittlig ekvivalensfaktor for de individuelle akslene for tunge kjøretøy. Denne beskriver bidraget til nedbrytningen av en veg sammenlignet med en 10-tonns aksel etter 4. potensregelen:
+    \[
+    E = \frac{1}{n} \sum_{i=1}^{n} \left(\frac{a_i}{10}\right)^4
+    \]
+    der \(a_i\) er vekten av aksel \(i\). Denne faktoren ble beregnet ved å iterere over hver registrering i de filtrerte datasettene (lengde over 5.6m/7.5m), 
+    hente ut vekten av hver aksel og deretter plugge dette inn i formelen ovenfor.
+    \item \(ÅDTT\): Gjennomsnittlig antall tunge kjøretøy per døgn i åpningsåret for vegen. Ettersom registreringene i dette datagrunnlaget ikke nødvendigvis dekker vegenes åpningsår, ble det tatt utgangspunkt i det første året med registreringer og deretter beregnet snittet av antallet tunge kjøretøy per døgn dette året.
+    \item \(f\): Fordelingsfaktor for tungtrafikken i kjørefeltene. Denne avhenger av antallet kjørefelt. Her er \(f = 0.45\) (4-feltsveg) brukt for Ånestad, og \(f = 0.5\) (2-feltsveg) for de resterende stasjonene.
+    \item \(p\): Forventet årlig trafikkvekst for tunge kjøretøy. Her er \(p = 1\), ved antagelsen om at trafikkmengden holder seg konstant.
+\end{itemize}
+
+\subsection{B-faktor}
+B-faktor er her beregnet som snittet av hvert tunge kjøretøys ESAL-verdi. ESAL-verdien til et kjøretøy er gitt ved:
+\[
+\text{ESAL} = \sum_{i=1}^{n} \left(\frac{w_i}{10}\right)^4 \times k_i
+\]
+hvor:
+\begin{itemize}
+    \item \(w_i\): Samlet vekt for akselgruppe \(i\),
+    \item \(k_i = 1\): For enkeltaksler,
+    \item \(k_i = \left(\frac{10}{18}\right)^4\): For boggiaksler,
+    \item \(k_i = \left(\frac{10}{24}\right)^4\): For trippelaksler.
+\end{itemize}
+B-faktoren ble beregnet ved å iterere over hver registrering i de filtrerte datasettene, vurdere aksler med mindre enn eller lik 1.8 meters avstand som tilhørende samme akselgruppe, og deretter sette dette inn i formelen ovenfor.
+% \\\\\textbf{Merk:} \\
+% I rapporten \textit{Aksellaster og beregning av «Truck factor» fra WIM} er B-faktor definert som snittet av \(B_{\text{fordon}}\) for alle kjøretøy, hvor:
+% \[
+% B_{\text{fordon}} = \sum_{i=1}^{j} \left(\frac{\text{axelvikt}_i}{\text{laglig last}_i}\right)^4
+% \]
+% Jeg oppfatter det slik at \(B_{\text{fordon}}\) også refereres til som ESAL, men ESAL er definert som:
+% \[
+% \text{ESAL} = \sum_{i=1}^{n} \left(\frac{w_i}{10}\right)^4 \times k_i
+% \]
+% Dersom man bytter ut $axelvitk_i$ med \(w_i\) og $laglig\:last_i$ med 10, står man igjen med en differanse på \(k_i\).
+% Jeg antar at forskjellen skyldes at \(B_{\text{fordon}}\)-versjonen baserer seg på å regne på individuelle aksler mens ESAL tar akselgrupper, 
+% hvorav faktoren $k_i$ brukes for å kompansere for dette. Isåfall vil disse fremgangsmåtene gi tilnærmet samme resultat.
+% Beregningen av B-faktor her har tatt utgangspunkt i ESAL-definisjonen, men kan enkelt tilpasses \(B_{\text{fordon}}\)-definisjonen.
+
+\section{Resultat}
+Ved fremgangsmåten beskrevet ovenfor, er dette resultatet:

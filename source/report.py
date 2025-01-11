@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+import pandas as pd
 import typer
 from loguru import logger
 
@@ -8,6 +9,9 @@ from source import config
 from source.config import MODE_AXLE_LOAD
 from source.config import MODE_VEHICLE_WEIGHT_74T
 from source.config import MODE_VEHICLE_WEIGHT_WIM
+from source.config import MODE_WIM_ROAD_WEAR_INDICATORS
+from source.config import PROCESSED_DATA_DIR
+from source.config import WIM_ROAD_WEAR_INDICATORS_DIR
 from source.utils import should_run_task
 
 app = typer.Typer()
@@ -226,6 +230,78 @@ def generate_latex_catalog(
             os.remove(temp_file)
 
 
+def generate_latex_with_table(
+    output_dir: Path,
+    df: pd.DataFrame,
+    title: str,
+    filename: str,
+    label: str = "tab:table",
+    caption: str = "Table Caption",
+) -> None:
+    """
+    Generate a LaTeX document with a table from a pandas DataFrame and compile it into a PDF.
+
+    Args:
+        output_dir (Path): The directory to save the output.
+        df (pd.DataFrame): The DataFrame to include as a table.
+        title (str): The title of the document.
+        filename (str): The name of the LaTeX file (without extension).
+        label (str): Label for the table.
+        caption (str): Caption for the table.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    if not os.path.exists(output_dir / "input.tex"):
+        with open(output_dir / "input.tex", "w") as f:
+            pass
+
+    latex_file = output_dir / f"{filename}.tex"
+
+    # Generate LaTeX code for the table
+    latex_table_code = "\\begin{table}[H]\n"
+    latex_table_code += "\\centering\n"
+    latex_table_code += "\\resizebox{\\linewidth}{!}{\n"
+    latex_table_code += df.to_latex(index=False, escape=False, float_format="%.2f")
+    latex_table_code += "}\n"
+    latex_table_code += f"\\caption{{{caption}}}\n"
+    latex_table_code += "\\end{table}\n"
+
+    # Write the LaTeX document
+    with open(latex_file, "w") as f:
+        f.write(r"\documentclass{article}" + "\n")
+        f.write(r"\usepackage{graphicx}" + "\n")
+        f.write(r"\usepackage{float}" + "\n")  # For H specifier
+        f.write(r"\usepackage{booktabs}" + "\n")
+        f.write(r"\usepackage{graphicx}" + "\n")
+        f.write(r"\usepackage{tocloft}" + "\n")  # Optional: for TOC styling
+        f.write(r"\usepackage[norsk]{babel}" + "\n")  # Norwegian language
+        f.write(
+            r"\usepackage[a4paper, left=20mm, right=20mm, top=25mm, bottom=25mm]{geometry}" + "\n"
+        )
+        f.write(
+            r"\usepackage[linkcolor=black, urlcolor=black, citecolor=black, hidelinks]{hyperref}"
+            + "\n"
+        )
+        f.write(r"\begin{document}" + "\n")
+        f.write(f"\\title{{{title.replace('\n', '\\\\')}}}\n")
+        f.write(r"\author{Anders V. Stubberud}" + "\n")
+        f.write(r"\maketitle" + "\n")
+        f.write(r"\input{input.tex}" + "\n")
+        f.write(latex_table_code)
+        f.write(r"\end{document}" + "\n")
+
+    try:
+        os.system(f"pdflatex -output-directory={output_dir} {latex_file}")
+        os.system(f"pdflatex -output-directory={output_dir} {latex_file}")
+    except Exception as e:
+        logger.error(f"LaTeX compilation failed: {e}")
+
+    for ext in ["aux", "log", "toc", "out"]:
+        temp_file = latex_file.with_suffix(f".{ext}")
+        if temp_file.exists():
+            os.remove(temp_file)
+
+
 @app.command()
 def main(
     # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
@@ -260,6 +336,30 @@ def main(
             sections=sections_vehicle_weight_74t,
             title="Totalvekter fra 74T prøveordningen",
             filename="Totalvekter-fra-74T-prøveordningen",
+        )
+
+    if should_run_task(mode, MODE_WIM_ROAD_WEAR_INDICATORS):
+        generate_latex_with_table(
+            output_dir=WIM_ROAD_WEAR_INDICATORS_DIR,
+            df=pd.read_csv(PROCESSED_DATA_DIR / "WIM road wear factors/WIM_road_wear_factors.csv")[
+                [
+                    "Sted",
+                    "B-faktor 5.6",
+                    "B-faktor 7.5",
+                    "N 5.6",
+                    "N 7.5",
+                    "ÅDTT 5.6",
+                    "ÅDTT 7.5",
+                    "E 5.6",
+                    "E 7.5",
+                    "C 5.6",
+                    "C 7.5",
+                ]
+            ],
+            filename="Supplerende_beregninger-forskjell_ved_endring_av_klassifisering_for_tunge_kjøretøy",
+            title="Supplerende beregninger\nForskjell ved endring av klassifisering for tunge kjøretøy",
+            label="tab:road-wear-indicators",
+            caption="Forskjell ved endring av klassifisering for tunge kjøretøy",
         )
 
 

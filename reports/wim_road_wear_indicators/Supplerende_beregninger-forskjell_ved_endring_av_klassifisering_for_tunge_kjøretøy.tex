@@ -1,0 +1,32 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{tocloft}
+\usepackage[norsk]{babel}
+\usepackage[a4paper, left=20mm, right=20mm, top=25mm, bottom=25mm]{geometry}
+\usepackage[linkcolor=black, urlcolor=black, citecolor=black, hidelinks]{hyperref}
+\begin{document}
+\title{Supplerende beregninger\\Forskjell ved endring av klassifisering for tunge kjøretøy}
+\author{Anders V. Stubberud}
+\maketitle
+\input{input.tex}
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lrrrrrrrrrr}
+\toprule
+Sted & B-faktor 5.6 & B-faktor 7.5 & N 5.6 & N 7.5 & ÅDTT 5.6 & ÅDTT 7.5 & E 5.6 & E 7.5 & C 5.6 & C 7.5 \\
+\midrule
+Øysand & 0.34 & 0.60 & 2591081.65 & 2314516.79 & 1538.25 & 759.25 & 0.15 & 0.22 & 2.77 & 3.38 \\
+Verdal & 0.15 & 0.28 & 694564.92 & 686776.49 & 876.78 & 437.19 & 0.08 & 0.13 & 2.58 & 3.09 \\
+Ånestad (vestgående) & 0.68 & 0.85 & 3410728.33 & 3455878.55 & 1050.29 & 848.14 & 0.22 & 0.25 & 4.00 & 4.52 \\
+Ånestad (østgående) & 0.85 & 1.05 & 4203937.06 & 4186849.32 & 1044.00 & 831.57 & 0.28 & 0.31 & 3.94 & 4.43 \\
+Skibotn & 0.93 & 1.24 & 956231.50 & 960970.07 & 191.43 & 143.79 & 0.31 & 0.36 & 3.95 & 4.61 \\
+\bottomrule
+\end{tabular}
+}
+\caption{Forskjell ved endring av klassifisering for tunge kjøretøy}
+\end{table}
+\end{document}

@@ -7,8 +7,10 @@ from source.config import INTERIM_DATA_DIR
 from source.config import MODE_AXLE_LOAD
 from source.config import MODE_VEHICLE_WEIGHT_74T
 from source.config import MODE_VEHICLE_WEIGHT_WIM
+from source.config import MODE_WIM_ROAD_WEAR_INDICATORS
 from source.config import PROCESSED_DATA_DIR
 from source.config import RAW_DATA_DIR
+from source.features_dir import road_wear_indicators
 from source.utils import should_run_task
 
 app = typer.Typer()
@@ -86,6 +88,9 @@ def main(
             ],
             ignore_index=True,
         ).sort_values("Dato").to_csv(INTERIM_DATA_DIR / "vehicle weight from 74t.csv", index=False)
+
+    if should_run_task(mode, MODE_WIM_ROAD_WEAR_INDICATORS):
+        road_wear_indicators.main()
     # -----------------------------------------
 
 
