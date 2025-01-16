@@ -1,7 +1,7 @@
 import math
 import os
 import pickle
-
+from pathlib import Path
 import geopandas as gpd
 import osmnx as ox
 import pandas as pd
@@ -18,6 +18,7 @@ from source.config import TESTING_DATA_DIR
 tonnages = (60, 65, 68, 74)
 years = range(2021, 2025)
 
+
 COORDINATES_TESTING = {
     'Aasvegen': (60.748064, 11.322768),
     'Skytragutua': (60.744695, 11.247904),
@@ -33,6 +34,10 @@ COORDINATE_POINTS_ROADS = {  # fant disse med https://vegkart.atlas.vegvesen.no/
     "Fv1844 S1": (60.82551243698731, 11.322549441663224),
     "Fv1900 S1": (60.672633328131525, 11.298307776875701),
 }
+
+ROAD_COORDINATES = COORDINATES_TESTING
+
+SUBPATH = 'testing'
 
 DELTA_LOGGING_SECONDS = 350
 THRESHOLD_HIGH_SPEED_KMH = 90
@@ -398,7 +403,7 @@ def make_boundaries_automatically(
             pickle.dump(buffer_gdf, f)
 
 
-def main(testing=False):
+def main(testing=False, subpath = 'testing'):
     for mode in ["trailer_only", "truck_only"]:
 
         # df = process_and_return_df(mode)
@@ -420,21 +425,25 @@ def main(testing=False):
             threshold_time_hours=THRESHOLD_HOUR_AVOID_COUNTING_DUPLICATE_REGISTRATIONS,
         )
 
-        df_table.to_csv(
-            (
-                f"{PROCESSED_DATA_DIR / 'estimated_registrations'}/final-{mode}.csv"
+        output_file = (
+            PROCESSED_DATA_DIR / 'estimated_registrations' / subpath / f"final-{mode}.csv"
                 if not testing
                 else f"{TESTING_DATA_DIR / 'estimated_registrations'}/output.csv"
-            ),
-            index=False,
         )
+        
+        os.makedirs(Path(output_file).parent, exist_ok=True)
+
+        df_table.to_csv(output_file, index=False)
 
         if testing:
             break
 
 
 if __name__ == "__main__":
+
     make_boundaries_automatically(
-        road_coordinates=COORDINATES_TESTING,
-        storage=INTERIM_DATA_DIR / "estimated_registrations" / 'testing',
+        road_coordinates=ROAD_COORDINATES,
+        storage=INTERIM_DATA_DIR / "estimated_registrations" / SUBPATH,
     )
+
+    # main(subpath=subpath)

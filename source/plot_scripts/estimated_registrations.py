@@ -115,8 +115,9 @@ def main(road_coordinates, pickle_path, figures_dir):
 
 
 if __name__ == "__main__":
+
     main(
-        estimated_registrations.COORDINATES_TESTING,
-        INTERIM_DATA_DIR / "estimated_registrations" / 'testing',
-        ESTIMATED_REGISTRATIONS_74T_DIR / 'testing' / 'figures',
+        estimated_registrations.ROAD_COORDINATES,
+        INTERIM_DATA_DIR / "estimated_registrations" / estimated_registrations.SUBPATH,
+        ESTIMATED_REGISTRATIONS_74T_DIR / estimated_registrations.SUBPATH / 'figures',
     )

@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 import typer
 from loguru import logger
-
+from source.features_dir import estimated_registrations
 from source import config
 from source.config import MODE_AXLE_LOAD
 from source.config import MODE_ESTIMATED_REGISTRATIONS
@@ -412,10 +412,13 @@ def main(
         )
 
     if should_run_task(mode, MODE_ESTIMATED_REGISTRATIONS):
+
+        subpath = 'testing'
+
         create_tex_for_images(
-            config.ESTIMATED_REGISTRATIONS_74T_DIR / "testing/figures",
-            config.ESTIMATED_REGISTRATIONS_74T_DIR / "testing/imageinputs.tex",
-            "testing",
+            config.ESTIMATED_REGISTRATIONS_74T_DIR / f"{estimated_registrations.SUBPATH}/figures",
+            config.ESTIMATED_REGISTRATIONS_74T_DIR / f"{estimated_registrations.SUBPATH}/imageinputs.tex",
+            estimated_registrations.SUBPATH,
         )
 
 
