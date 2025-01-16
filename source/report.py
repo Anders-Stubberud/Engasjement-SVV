@@ -156,7 +156,7 @@ def create_tex_for_images(image_dir, output_tex, subpath):
                 """
 \\begin{{figure}}[H]
     \\centering
-    \\includegraphics[width=0.9\\linewidth]{{images/{subpath}/{filename}.png}}
+    \\includegraphics[width=1\\linewidth]{{images/{subpath}/{filename}.png}}
 \\end{{figure}}
             """.format(
                     subpath=subpath, filename=filename
@@ -412,8 +412,6 @@ def main(
         )
 
     if should_run_task(mode, MODE_ESTIMATED_REGISTRATIONS):
-
-        subpath = 'testing'
 
         create_tex_for_images(
             config.ESTIMATED_REGISTRATIONS_74T_DIR / f"{estimated_registrations.SUBPATH}/figures",

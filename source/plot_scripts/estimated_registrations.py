@@ -11,6 +11,7 @@ from PIL import Image
 from source.config import ESTIMATED_REGISTRATIONS_74T_FIGURES_DIR
 from source.config import INTERIM_DATA_DIR, ESTIMATED_REGISTRATIONS_74T_DIR
 from source.features_dir import estimated_registrations
+from source.utils import sanitize_filename
 
 
 def meters_to_degrees(meters, lat):
@@ -39,8 +40,10 @@ def main(road_coordinates, pickle_path, figures_dir):
     # Retrieve coordinate keys and pickle files
     keys = list(road_coordinates.keys())
     pickle_files = [
-        pickle_path / f"{key}_boundary.pkl" for key in keys
+        pickle_path / f"{sanitize_filename(key)}_boundary.pkl" for key in keys
     ]
+
+    os.makedirs(figures_dir, exist_ok=True)
 
     # Loop through keys and pickle files
     for key, pickle_file in zip(keys, pickle_files):
@@ -97,8 +100,6 @@ def main(road_coordinates, pickle_path, figures_dir):
 
         img_data = m._to_png(5)  # 5 for higher DPI
 
-        os.makedirs(figures_dir, exist_ok=True)
-
         # Open the image data using Pillow
         img = Image.open(BytesIO(img_data))
         fig, ax = plt.subplots(figsize=(10, 10))
@@ -106,13 +107,13 @@ def main(road_coordinates, pickle_path, figures_dir):
         ax.set_title(f"{key} ({lat}, {lon})")
         ax.imshow(img)
         plt.savefig(
-            figures_dir / f"{key}.png",
+            figures_dir / f"{sanitize_filename(key)}.png",
             format="png",
             bbox_inches="tight",
             pad_inches=0,
             dpi=300,
         )
-
+        plt.close(fig)
 
 if __name__ == "__main__":
 

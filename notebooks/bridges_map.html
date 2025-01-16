@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_0491fcb956b74f5dfb87dc0b34cfb42f {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_0491fcb956b74f5dfb87dc0b34cfb42f" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_0491fcb956b74f5dfb87dc0b34cfb42f = L.map(
+                "map_0491fcb956b74f5dfb87dc0b34cfb42f",
+                {
+                    center: [60.516847600000006, 11.5102829],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 7,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_ae7c3e6b345ce16f6527b786bf1bdcca = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_ae7c3e6b345ce16f6527b786bf1bdcca.addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+            var marker_9337081ec2c709ebe5460d39546d80c0 = L.marker(
+                [60.516847600000006, 11.5102829],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_fcd689e0d77f099ec69f85dfcdf3e687 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_ac308cb170415bc1c0c6c0937d7f77de = $(`<div id="html_ac308cb170415bc1c0c6c0937d7f77de" style="width: 100.0%; height: 100.0%;">Mattisdammen (60.51685, 11.51028)</div>`)[0];
+                popup_fcd689e0d77f099ec69f85dfcdf3e687.setContent(html_ac308cb170415bc1c0c6c0937d7f77de);
+            
+        
+
+        marker_9337081ec2c709ebe5460d39546d80c0.bindPopup(popup_fcd689e0d77f099ec69f85dfcdf3e687)
+        ;
+
+        
+    
+    
+            var marker_08aff32b459d8f83c9f143b1079a9392 = L.marker(
+                [60.576550749999996, 11.505494800000001],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_9dc0d70b27104b4f4916114d0c1cdb98 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_186e4ecd6dc72d64c38acdd0b76de89f = $(`<div id="html_186e4ecd6dc72d64c38acdd0b76de89f" style="width: 100.0%; height: 100.0%;">Faldåen bru (60.57655, 11.50549)</div>`)[0];
+                popup_9dc0d70b27104b4f4916114d0c1cdb98.setContent(html_186e4ecd6dc72d64c38acdd0b76de89f);
+            
+        
+
+        marker_08aff32b459d8f83c9f143b1079a9392.bindPopup(popup_9dc0d70b27104b4f4916114d0c1cdb98)
+        ;
+
+        
+    
+    
+            var marker_891e87af66c4b87f761b9567bda9bf6b = L.marker(
+                [60.723629200000005, 11.229822],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_b802a43b23fa75ed57f818a893aca896 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_0bab6005a3474e939c68f6a5f8dbbbb1 = $(`<div id="html_0bab6005a3474e939c68f6a5f8dbbbb1" style="width: 100.0%; height: 100.0%;">Uthus bru (60.72363, 11.22982)</div>`)[0];
+                popup_b802a43b23fa75ed57f818a893aca896.setContent(html_0bab6005a3474e939c68f6a5f8dbbbb1);
+            
+        
+
+        marker_891e87af66c4b87f761b9567bda9bf6b.bindPopup(popup_b802a43b23fa75ed57f818a893aca896)
+        ;
+
+        
+    
+    
+            var marker_ceb81e828acd242d38a4b94f57f85195 = L.marker(
+                [60.62009555, 11.2857334],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_eb0f26f4d0c7b076c158258ee2efb0ad = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_833afca5101d40c5fa6603ca17ed7343 = $(`<div id="html_833afca5101d40c5fa6603ca17ed7343" style="width: 100.0%; height: 100.0%;">Rabben bru (60.62010, 11.28573)</div>`)[0];
+                popup_eb0f26f4d0c7b076c158258ee2efb0ad.setContent(html_833afca5101d40c5fa6603ca17ed7343);
+            
+        
+
+        marker_ceb81e828acd242d38a4b94f57f85195.bindPopup(popup_eb0f26f4d0c7b076c158258ee2efb0ad)
+        ;
+
+        
+    
+    
+            var marker_d0ec0a52c3594be913bdc583a6489afd = L.marker(
+                [62.6056063, 6.9343112499999995],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_0b4d01f555f6740ebd4251a3e1cfa6e0 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_a0a84dfc1bd6e455208fae091b16559e = $(`<div id="html_a0a84dfc1bd6e455208fae091b16559e" style="width: 100.0%; height: 100.0%;">Vik bru (62.60561, 6.93431)</div>`)[0];
+                popup_0b4d01f555f6740ebd4251a3e1cfa6e0.setContent(html_a0a84dfc1bd6e455208fae091b16559e);
+            
+        
+
+        marker_d0ec0a52c3594be913bdc583a6489afd.bindPopup(popup_0b4d01f555f6740ebd4251a3e1cfa6e0)
+        ;
+
+        
+    
+    
+            var marker_d08e03b93d4edbd1524c7e9c6b5e573a = L.marker(
+                [58.965630000000004, 5.72219375504032],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_7e813f37ec94c97c25800531085293eb = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_b23a9a5a594d6e9e3ee834b8af19c008 = $(`<div id="html_b23a9a5a594d6e9e3ee834b8af19c008" style="width: 100.0%; height: 100.0%;">Breidablikk (58.96563, 5.72219)</div>`)[0];
+                popup_7e813f37ec94c97c25800531085293eb.setContent(html_b23a9a5a594d6e9e3ee834b8af19c008);
+            
+        
+
+        marker_d08e03b93d4edbd1524c7e9c6b5e573a.bindPopup(popup_7e813f37ec94c97c25800531085293eb)
+        ;
+
+        
+    
+    
+            var marker_096f13308d14b7400358151869194de5 = L.marker(
+                [60.7878401, 11.097981800000014],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_3806ba071918aa6217151a6132fc1ff9 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_85ef039ce5c13d9eabab43528d623427 = $(`<div id="html_85ef039ce5c13d9eabab43528d623427" style="width: 100.0%; height: 100.0%;">Stangebrua (60.78784, 11.09798)</div>`)[0];
+                popup_3806ba071918aa6217151a6132fc1ff9.setContent(html_85ef039ce5c13d9eabab43528d623427);
+            
+        
+
+        marker_096f13308d14b7400358151869194de5.bindPopup(popup_3806ba071918aa6217151a6132fc1ff9)
+        ;
+
+        
+    
+    
+            var marker_bb361d617e97e46b162fe2af979efd99 = L.marker(
+                [60.81023605052711, 11.090015113576673],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_107a46050dc55802fc3f052dc42b99df = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_8c79880ea8d115099e5b3e8191163bb9 = $(`<div id="html_8c79880ea8d115099e5b3e8191163bb9" style="width: 100.0%; height: 100.0%;">Vektbakken (60.81024, 11.09002)</div>`)[0];
+                popup_107a46050dc55802fc3f052dc42b99df.setContent(html_8c79880ea8d115099e5b3e8191163bb9);
+            
+        
+
+        marker_bb361d617e97e46b162fe2af979efd99.bindPopup(popup_107a46050dc55802fc3f052dc42b99df)
+        ;
+
+        
+    
+    
+            var marker_c412f7e9caeffb8fe53c1b93cd8a25cc = L.marker(
+                [60.8150267, 11.103015599999999],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_5a0ffd1d24f5faf219d0aade5e544a4a = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_7726a29f5359863fbe56af4418a0aba2 = $(`<div id="html_7726a29f5359863fbe56af4418a0aba2" style="width: 100.0%; height: 100.0%;">Flagstad bru (60.81503, 11.10302)</div>`)[0];
+                popup_5a0ffd1d24f5faf219d0aade5e544a4a.setContent(html_7726a29f5359863fbe56af4418a0aba2);
+            
+        
+
+        marker_c412f7e9caeffb8fe53c1b93cd8a25cc.bindPopup(popup_5a0ffd1d24f5faf219d0aade5e544a4a)
+        ;
+
+        
+    
+    
+            var marker_00eceaabcd2e0032a25e58c4042ea2ee = L.marker(
+                [60.801022450000005, 11.2387093],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_c9801275ce559ba394d0bf2a3180706c = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_04c1761d5aeb5b32e6d619723f2c7738 = $(`<div id="html_04c1761d5aeb5b32e6d619723f2c7738" style="width: 100.0%; height: 100.0%;">Falls bru (60.80102, 11.23871)</div>`)[0];
+                popup_c9801275ce559ba394d0bf2a3180706c.setContent(html_04c1761d5aeb5b32e6d619723f2c7738);
+            
+        
+
+        marker_00eceaabcd2e0032a25e58c4042ea2ee.bindPopup(popup_c9801275ce559ba394d0bf2a3180706c)
+        ;
+
+        
+    
+    
+            var marker_c25e68f5b96fb0cd99bb4dfbb390eb7d = L.marker(
+                [60.79605465, 11.273130850000001],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_7f79c0e2d2a7f08eaf477ba0179477cf = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_e4c66aa85517440c9e7be5ebb1beb8b2 = $(`<div id="html_e4c66aa85517440c9e7be5ebb1beb8b2" style="width: 100.0%; height: 100.0%;">Haukstad bru (60.79605, 11.27313)</div>`)[0];
+                popup_7f79c0e2d2a7f08eaf477ba0179477cf.setContent(html_e4c66aa85517440c9e7be5ebb1beb8b2);
+            
+        
+
+        marker_c25e68f5b96fb0cd99bb4dfbb390eb7d.bindPopup(popup_7f79c0e2d2a7f08eaf477ba0179477cf)
+        ;
+
+        
+    
+    
+            var marker_f67369c50e5a8f785b955a5c3d15cb08 = L.marker(
+                [60.86348288910646, 11.109033145077614],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_7f599c5e87a54dc38d1e0bcbc5607e5c = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_e390259436c585d92ee7765d734094b5 = $(`<div id="html_e390259436c585d92ee7765d734094b5" style="width: 100.0%; height: 100.0%;">Bjørge bru (60.86348, 11.10903)</div>`)[0];
+                popup_7f599c5e87a54dc38d1e0bcbc5607e5c.setContent(html_e390259436c585d92ee7765d734094b5);
+            
+        
+
+        marker_f67369c50e5a8f785b955a5c3d15cb08.bindPopup(popup_7f599c5e87a54dc38d1e0bcbc5607e5c)
+        ;
+
+        
+    
+    
+            var marker_9f105c57eec75aea130db68d5bcc5fb8 = L.marker(
+                [60.8444175, 11.1915205],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_99b2cf78e8a18b62daff8f3d7e6a133e = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_fbfffb300976407b748adef692dc22e3 = $(`<div id="html_fbfffb300976407b748adef692dc22e3" style="width: 100.0%; height: 100.0%;">Dystvoll bru (60.84442, 11.19152)</div>`)[0];
+                popup_99b2cf78e8a18b62daff8f3d7e6a133e.setContent(html_fbfffb300976407b748adef692dc22e3);
+            
+        
+
+        marker_9f105c57eec75aea130db68d5bcc5fb8.bindPopup(popup_99b2cf78e8a18b62daff8f3d7e6a133e)
+        ;
+
+        
+    
+    
+            var marker_15d16b6d764d80227b0ddd1fe8d584be = L.marker(
+                [60.7878736, 11.3480866],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_4343aa6631834e0f4600155df20e9bf8 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_e9e011120544580745fee95511fed2ce = $(`<div id="html_e9e011120544580745fee95511fed2ce" style="width: 100.0%; height: 100.0%;">Brovoll (60.78787, 11.34809)</div>`)[0];
+                popup_4343aa6631834e0f4600155df20e9bf8.setContent(html_e9e011120544580745fee95511fed2ce);
+            
+        
+
+        marker_15d16b6d764d80227b0ddd1fe8d584be.bindPopup(popup_4343aa6631834e0f4600155df20e9bf8)
+        ;
+
+        
+    
+    
+            var marker_4273e30b615d3a698242d78614da4660 = L.marker(
+                [60.5145598514924, 11.243639362779252],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_3e55669e8827cbb8c856a9546ab6d2e8 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_1085510dd7a833ccbe32793e86f02215 = $(`<div id="html_1085510dd7a833ccbe32793e86f02215" style="width: 100.0%; height: 100.0%;">Strandlykkja bru (60.51456, 11.24364)</div>`)[0];
+                popup_3e55669e8827cbb8c856a9546ab6d2e8.setContent(html_1085510dd7a833ccbe32793e86f02215);
+            
+        
+
+        marker_4273e30b615d3a698242d78614da4660.bindPopup(popup_3e55669e8827cbb8c856a9546ab6d2e8)
+        ;
+
+        
+    
+    
+            var marker_19905e4d89d5ee8cf5db975cb8593672 = L.marker(
+                [44.340558, 2.553653270251397],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_f58baa173aac9c2cfe77689859c0027d = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_affa75732e82f95b4a6e0e98df3ad65f = $(`<div id="html_affa75732e82f95b4a6e0e98df3ad65f" style="width: 100.0%; height: 100.0%;">Espa bru (44.34056, 2.55365)</div>`)[0];
+                popup_f58baa173aac9c2cfe77689859c0027d.setContent(html_affa75732e82f95b4a6e0e98df3ad65f);
+            
+        
+
+        marker_19905e4d89d5ee8cf5db975cb8593672.bindPopup(popup_f58baa173aac9c2cfe77689859c0027d)
+        ;
+
+        
+    
+    
+            var marker_0cef2847ed112a1d000ee69e8a06da00 = L.marker(
+                [60.8211926150946, 11.099966356792397],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_1ccc8c1f2391cbb8265222d51a38a74d = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_78cc32747978751b136551dfd23e361e = $(`<div id="html_78cc32747978751b136551dfd23e361e" style="width: 100.0%; height: 100.0%;">Nordre Flagstad bru (60.82119, 11.09997)</div>`)[0];
+                popup_1ccc8c1f2391cbb8265222d51a38a74d.setContent(html_78cc32747978751b136551dfd23e361e);
+            
+        
+
+        marker_0cef2847ed112a1d000ee69e8a06da00.bindPopup(popup_1ccc8c1f2391cbb8265222d51a38a74d)
+        ;
+
+        
+    
+    
+            var marker_fde7e9004a1cc7c8f4f5344445ad5d0a = L.marker(
+                [60.8231845, 11.1674948],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_ba3a762a88f3b976c90697aa335e09eb = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_af9f0c8a8e8b245dad89acca7c33994a = $(`<div id="html_af9f0c8a8e8b245dad89acca7c33994a" style="width: 100.0%; height: 100.0%;">Nashaug (60.82318, 11.16749)</div>`)[0];
+                popup_ba3a762a88f3b976c90697aa335e09eb.setContent(html_af9f0c8a8e8b245dad89acca7c33994a);
+            
+        
+
+        marker_fde7e9004a1cc7c8f4f5344445ad5d0a.bindPopup(popup_ba3a762a88f3b976c90697aa335e09eb)
+        ;
+
+        
+    
+    
+            var marker_797cc910622432542e1a9c0814ce1c65 = L.marker(
+                [60.8681159, 11.3294381],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_90426f8828c2006c60131dff476cbf92 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_c714b5b27f2f0acd984d3f7b6301127b = $(`<div id="html_c714b5b27f2f0acd984d3f7b6301127b" style="width: 100.0%; height: 100.0%;">Grylling (60.86812, 11.32944)</div>`)[0];
+                popup_90426f8828c2006c60131dff476cbf92.setContent(html_c714b5b27f2f0acd984d3f7b6301127b);
+            
+        
+
+        marker_797cc910622432542e1a9c0814ce1c65.bindPopup(popup_90426f8828c2006c60131dff476cbf92)
+        ;
+
+        
+    
+    
+            var marker_47b9449614263bf3463d347897c7f5cd = L.marker(
+                [60.81807855, 11.302101705824612],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_20efc034e2cbe7bb0fb993891b5e1737 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_56e5971353b7f789641aa43c57f1447f = $(`<div id="html_56e5971353b7f789641aa43c57f1447f" style="width: 100.0%; height: 100.0%;">Stensby bru (60.81808, 11.30210)</div>`)[0];
+                popup_20efc034e2cbe7bb0fb993891b5e1737.setContent(html_56e5971353b7f789641aa43c57f1447f);
+            
+        
+
+        marker_47b9449614263bf3463d347897c7f5cd.bindPopup(popup_20efc034e2cbe7bb0fb993891b5e1737)
+        ;
+
+        
+    
+    
+            var marker_346527cffa1b8c1f15f929a828ddd0b4 = L.marker(
+                [60.8338573, 11.29455978553454],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_e9ddc8181e228bec267f6114b5f0e514 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_aa5cdcba125da9cd4fdcc1a3d85f93b6 = $(`<div id="html_aa5cdcba125da9cd4fdcc1a3d85f93b6" style="width: 100.0%; height: 100.0%;">Budorvegen overgangsbru (60.83386, 11.29456)</div>`)[0];
+                popup_e9ddc8181e228bec267f6114b5f0e514.setContent(html_aa5cdcba125da9cd4fdcc1a3d85f93b6);
+            
+        
+
+        marker_346527cffa1b8c1f15f929a828ddd0b4.bindPopup(popup_e9ddc8181e228bec267f6114b5f0e514)
+        ;
+
+        
+    
+    
+            var marker_ff2e31865ecae5e472541938b9129c35 = L.marker(
+                [60.79085015, 11.39858825],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_818e3c8380c2119cdc53772fadb7d419 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_c748e2c97efc2009c836600185b21378 = $(`<div id="html_c748e2c97efc2009c836600185b21378" style="width: 100.0%; height: 100.0%;">Hammeren bru (60.79085, 11.39859)</div>`)[0];
+                popup_818e3c8380c2119cdc53772fadb7d419.setContent(html_c748e2c97efc2009c836600185b21378);
+            
+        
+
+        marker_ff2e31865ecae5e472541938b9129c35.bindPopup(popup_818e3c8380c2119cdc53772fadb7d419)
+        ;
+
+        
+    
+    
+            var marker_99e8ffe0edcabb40ba64bee239717b51 = L.marker(
+                [59.26083265, 10.415823888680295],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_d1bd409121b35015613fca3c62af5481 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_1aba5a0d7eed77e645e95d2e707a9c06 = $(`<div id="html_1aba5a0d7eed77e645e95d2e707a9c06" style="width: 100.0%; height: 100.0%;">Kanalbrua (59.26083, 10.41582)</div>`)[0];
+                popup_d1bd409121b35015613fca3c62af5481.setContent(html_1aba5a0d7eed77e645e95d2e707a9c06);
+            
+        
+
+        marker_99e8ffe0edcabb40ba64bee239717b51.bindPopup(popup_d1bd409121b35015613fca3c62af5481)
+        ;
+
+        
+    
+    
+            var marker_2b15e694121e2b7a53ac8cd172b9a85a = L.marker(
+                [60.78701685, 11.478168499999999],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_0c2026ac73c8d8a680978a21387d5ab3 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_f8e1e5733eb4902ad9f02701badae912 = $(`<div id="html_f8e1e5733eb4902ad9f02701badae912" style="width: 100.0%; height: 100.0%;">Oset bru (60.78702, 11.47817)</div>`)[0];
+                popup_0c2026ac73c8d8a680978a21387d5ab3.setContent(html_f8e1e5733eb4902ad9f02701badae912);
+            
+        
+
+        marker_2b15e694121e2b7a53ac8cd172b9a85a.bindPopup(popup_0c2026ac73c8d8a680978a21387d5ab3)
+        ;
+
+        
+    
+    
+            var marker_f73366313ba4cbdce02616d657daef9e = L.marker(
+                [61.31603885, 12.2576328],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_77d7f26b5c86ee5400fab76ee582270b = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_0449968b1a802d0b10186aa9711a6540 = $(`<div id="html_0449968b1a802d0b10186aa9711a6540" style="width: 100.0%; height: 100.0%;">Kirkebrua (61.31604, 12.25763)</div>`)[0];
+                popup_77d7f26b5c86ee5400fab76ee582270b.setContent(html_0449968b1a802d0b10186aa9711a6540);
+            
+        
+
+        marker_f73366313ba4cbdce02616d657daef9e.bindPopup(popup_77d7f26b5c86ee5400fab76ee582270b)
+        ;
+
+        
+    
+    
+            var marker_6b8ba189aad1ef7d53019d8bac68bb40 = L.marker(
+                [60.78809455, 11.3476677],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_1b69d00101c10f9faf0ff627bb67c0cc = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_097699945d784e4f13b3aca7baa583b0 = $(`<div id="html_097699945d784e4f13b3aca7baa583b0" style="width: 100.0%; height: 100.0%;">Klæpa bru (60.78809, 11.34767)</div>`)[0];
+                popup_1b69d00101c10f9faf0ff627bb67c0cc.setContent(html_097699945d784e4f13b3aca7baa583b0);
+            
+        
+
+        marker_6b8ba189aad1ef7d53019d8bac68bb40.bindPopup(popup_1b69d00101c10f9faf0ff627bb67c0cc)
+        ;
+
+        
+    
+    
+            var marker_1a0228aa462f99e3816f576644ebb0c5 = L.marker(
+                [60.8301306, 11.1382361],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_839bf7cf9a8d57dc2bfcfa102c4b86c3 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_33ce26f600df8bcfdc68202397441479 = $(`<div id="html_33ce26f600df8bcfdc68202397441479" style="width: 100.0%; height: 100.0%;">Skogsrud (60.83013, 11.13824)</div>`)[0];
+                popup_839bf7cf9a8d57dc2bfcfa102c4b86c3.setContent(html_33ce26f600df8bcfdc68202397441479);
+            
+        
+
+        marker_1a0228aa462f99e3816f576644ebb0c5.bindPopup(popup_839bf7cf9a8d57dc2bfcfa102c4b86c3)
+        ;
+
+        
+    
+    
+            var marker_6c19f2f9ce6ba14cf241cf872438ef99 = L.marker(
+                [59.62874285, 10.2299605],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_ca5b1ad04b7d6b3e64d2a1617ec2f594 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_67f73f58f8f04ef69b1406cb3aa5eb08 = $(`<div id="html_67f73f58f8f04ef69b1406cb3aa5eb08" style="width: 100.0%; height: 100.0%;">Foss bru (59.62874, 10.22996)</div>`)[0];
+                popup_ca5b1ad04b7d6b3e64d2a1617ec2f594.setContent(html_67f73f58f8f04ef69b1406cb3aa5eb08);
+            
+        
+
+        marker_6c19f2f9ce6ba14cf241cf872438ef99.bindPopup(popup_ca5b1ad04b7d6b3e64d2a1617ec2f594)
+        ;
+
+        
+    
+    
+            var marker_138bb00d940f5dd09f687eab69ad84bc = L.marker(
+                [59.5706384, 11.16397765],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_87b22c24f9cd67e0b23c8302bc6f9db2 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_3348921239d5c508ddbab7f734bb7c6b = $(`<div id="html_3348921239d5c508ddbab7f734bb7c6b" style="width: 100.0%; height: 100.0%;">Moen bru (59.57064, 11.16398)</div>`)[0];
+                popup_87b22c24f9cd67e0b23c8302bc6f9db2.setContent(html_3348921239d5c508ddbab7f734bb7c6b);
+            
+        
+
+        marker_138bb00d940f5dd09f687eab69ad84bc.bindPopup(popup_87b22c24f9cd67e0b23c8302bc6f9db2)
+        ;
+
+        
+    
+    
+            var marker_0735cdd9080c5f52f82ef8a3a703b4b3 = L.marker(
+                [60.7807504, 11.27280915],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_90ecb87436f953740b5b4cd10dd9e777 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_b6f27db9ba7fced432f3c31ca5b78f2a = $(`<div id="html_b6f27db9ba7fced432f3c31ca5b78f2a" style="width: 100.0%; height: 100.0%;">Hørsand bru (60.78075, 11.27281)</div>`)[0];
+                popup_90ecb87436f953740b5b4cd10dd9e777.setContent(html_b6f27db9ba7fced432f3c31ca5b78f2a);
+            
+        
+
+        marker_0735cdd9080c5f52f82ef8a3a703b4b3.bindPopup(popup_90ecb87436f953740b5b4cd10dd9e777)
+        ;
+
+        
+    
+    
+            var marker_bd3e10cc56dd81032e4ad4bd64dd5e62 = L.marker(
+                [60.802035950000004, 11.290769684413094],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_ced1609987836dc1fa8e8b7ae3e4b0bb = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_c2369bf88896e650ac22eff7ac9710bc = $(`<div id="html_c2369bf88896e650ac22eff7ac9710bc" style="width: 100.0%; height: 100.0%;">Ommangsvollen overgangsbru (60.80204, 11.29077)</div>`)[0];
+                popup_ced1609987836dc1fa8e8b7ae3e4b0bb.setContent(html_c2369bf88896e650ac22eff7ac9710bc);
+            
+        
+
+        marker_bd3e10cc56dd81032e4ad4bd64dd5e62.bindPopup(popup_ced1609987836dc1fa8e8b7ae3e4b0bb)
+        ;
+
+        
+    
+    
+            var marker_822c718ad5edc9112a46332e515c7272 = L.marker(
+                [51.1826557, -0.084636],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_f152a2a965938e976bd605eaed52962b = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_d98c34241c46ec246a73c202ae97ada6 = $(`<div id="html_d98c34241c46ec246a73c202ae97ada6" style="width: 100.0%; height: 100.0%;">Horne (51.18266, -0.08464)</div>`)[0];
+                popup_f152a2a965938e976bd605eaed52962b.setContent(html_d98c34241c46ec246a73c202ae97ada6);
+            
+        
+
+        marker_822c718ad5edc9112a46332e515c7272.bindPopup(popup_f152a2a965938e976bd605eaed52962b)
+        ;
+
+        
+    
+    
+            var marker_9ab64d881905c1f20ea0ce3b6e8fe1ae = L.marker(
+                [60.77981805, 11.21528045],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_79ae98a1eedd326b3ebf190582d12fa1 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_f7426118b74ab4ad77dd7822195ec94d = $(`<div id="html_f7426118b74ab4ad77dd7822195ec94d" style="width: 100.0%; height: 100.0%;">Ilseng bru (60.77982, 11.21528)</div>`)[0];
+                popup_79ae98a1eedd326b3ebf190582d12fa1.setContent(html_f7426118b74ab4ad77dd7822195ec94d);
+            
+        
+
+        marker_9ab64d881905c1f20ea0ce3b6e8fe1ae.bindPopup(popup_79ae98a1eedd326b3ebf190582d12fa1)
+        ;
+
+        
+    
+    
+            var marker_caf043d424451e63409fa4c92c735e96 = L.marker(
+                [60.73678899992391, 11.29981199134176],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_0c5a380efe6476a24edfd40485ef86ab = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_5045c2bcabc4488070858928968dcf48 = $(`<div id="html_5045c2bcabc4488070858928968dcf48" style="width: 100.0%; height: 100.0%;">Morønningen bru (60.73679, 11.29981)</div>`)[0];
+                popup_0c5a380efe6476a24edfd40485ef86ab.setContent(html_5045c2bcabc4488070858928968dcf48);
+            
+        
+
+        marker_caf043d424451e63409fa4c92c735e96.bindPopup(popup_0c5a380efe6476a24edfd40485ef86ab)
+        ;
+
+        
+    
+    
+            var marker_efed2d1c75a3702d4f5c2b5f40f6b547 = L.marker(
+                [60.78698932721215, 11.302385461425311],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_5df8354f25c67c37cf517b684e987646 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_07250bda0885eeae49f8efaf0cbb2913 = $(`<div id="html_07250bda0885eeae49f8efaf0cbb2913" style="width: 100.0%; height: 100.0%;">Klevfoss bru (60.78699, 11.30239)</div>`)[0];
+                popup_5df8354f25c67c37cf517b684e987646.setContent(html_07250bda0885eeae49f8efaf0cbb2913);
+            
+        
+
+        marker_efed2d1c75a3702d4f5c2b5f40f6b547.bindPopup(popup_5df8354f25c67c37cf517b684e987646)
+        ;
+
+        
+    
+    
+            var marker_b7285b4f4a80f6283f935cb0c0ada76a = L.marker(
+                [60.78816715, 11.304398599999999],
+                {
+}
+            ).addTo(map_0491fcb956b74f5dfb87dc0b34cfb42f);
+        
+    
+        var popup_dd156eaceb1a8d50db82ad9e16398a3c = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_cd853d1e6015c3b1903f998f4013c63d = $(`<div id="html_cd853d1e6015c3b1903f998f4013c63d" style="width: 100.0%; height: 100.0%;">Nyhuset bru (60.78817, 11.30440)</div>`)[0];
+                popup_dd156eaceb1a8d50db82ad9e16398a3c.setContent(html_cd853d1e6015c3b1903f998f4013c63d);
+            
+        
+
+        marker_b7285b4f4a80f6283f935cb0c0ada76a.bindPopup(popup_dd156eaceb1a8d50db82ad9e16398a3c)
+        ;
+
+        
+    
+</script>
+</html>

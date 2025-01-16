@@ -9,7 +9,7 @@ from geopy.distance import geodesic
 from shapely import MultiLineString
 from shapely.geometry import Point
 from shapely.ops import unary_union
-
+from source.utils import sanitize_filename
 from source.config import INTERIM_DATA_DIR
 from source.config import PROCESSED_DATA_DIR
 from source.config import RAW_DATA_DIR
@@ -35,9 +35,12 @@ COORDINATE_POINTS_ROADS = {  # fant disse med https://vegkart.atlas.vegvesen.no/
     "Fv1900 S1": (60.672633328131525, 11.298307776875701),
 }
 
-ROAD_COORDINATES = COORDINATES_TESTING
+with open(INTERIM_DATA_DIR / 'bridges' / 'bridge_coordinates.pkl', 'rb') as f:
+    BRIDGE_COORDINATES = pickle.load(f)
 
-SUBPATH = 'testing'
+ROAD_COORDINATES = BRIDGE_COORDINATES
+
+SUBPATH = 'bridges'
 
 DELTA_LOGGING_SECONDS = 350
 THRESHOLD_HIGH_SPEED_KMH = 90
@@ -399,7 +402,7 @@ def make_boundaries_automatically(
 
         os.makedirs(storage, exist_ok=True)
 
-        with open(storage / f"{road}_boundary.pkl", "wb") as f:
+        with open(storage / f"{sanitize_filename(road)}_boundary.pkl", "wb") as f:
             pickle.dump(buffer_gdf, f)
 
 
@@ -446,4 +449,4 @@ if __name__ == "__main__":
         storage=INTERIM_DATA_DIR / "estimated_registrations" / SUBPATH,
     )
 
-    # main(subpath=subpath)
+    # main(subpath=SUBPATH)

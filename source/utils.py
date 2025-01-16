@@ -1,6 +1,6 @@
 from typing import List
 from typing import Tuple
-
+import re
 import numpy as np
 
 
@@ -44,3 +44,22 @@ def trim_tonnage_x_axis(total_values: List[float], delta: float) -> Tuple[List[f
     threshold_index = find_threshold_index(total_values, delta)
 
     return total_values[:threshold_index], threshold_index
+
+
+def sanitize_filename(input_string):
+    # Replace spaces with underscores
+    sanitized = input_string.replace(" ", "_")
+    
+    # Replace slashes and backslashes with underscores
+    sanitized = sanitized.replace("/", "_").replace("\\", "_")
+    
+    # Remove any other characters that are not allowed in filenames (e.g., punctuation)
+    sanitized = re.sub(r'[^\w\s-]', '', sanitized)
+    
+    # Optionally, replace multiple underscores with a single underscore
+    sanitized = re.sub(r'[_]+', '_', sanitized)
+    
+    # Make the filename lowercase for consistency
+    sanitized = sanitized.lower()
+    
+    return sanitized
