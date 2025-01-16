@@ -7,6 +7,7 @@ from loguru import logger
 
 from source import config
 from source.config import MODE_AXLE_LOAD
+from source.config import MODE_ESTIMATED_REGISTRATIONS
 from source.config import MODE_VEHICLE_WEIGHT_74T
 from source.config import MODE_VEHICLE_WEIGHT_WIM
 from source.config import MODE_WIM_ROAD_WEAR_INDICATORS
@@ -139,6 +140,28 @@ sections_vehicle_weight_74t = [
 def is_flat(iterable: list) -> bool:
     """Check if a list or tuple contains no nested lists or tuples."""
     return all(not isinstance(item, (list, tuple)) for item in iterable)
+
+
+def create_tex_for_images(image_dir, output_tex, subpath):
+    # Get all PNG files in the directory
+    image_files = [f for f in os.listdir(image_dir) if f.endswith(".png")]
+
+    # Open the output .tex file for writing
+    with open(output_tex, "w") as tex_file:
+        # Iterate over the image files and create the input commands
+        for image in image_files:
+            image_path = os.path.join(image_dir, image)
+            filename = image.split(".")[0]
+            tex_file.write(
+                """
+\\begin{{figure}}[H]
+    \\centering
+    \\includegraphics[width=0.9\\linewidth]{{images/{subpath}/{filename}.png}}
+\\end{{figure}}
+            """.format(
+                    subpath=subpath, filename=filename
+                )
+            )
 
 
 def generate_latex_catalog(
@@ -333,7 +356,7 @@ def main(
     # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
     input_path: Path = config.AXLE_LOAD_W_N200_AND_ESAL_FIGURES_DIR,
     output_path: Path = config.AXLE_LOAD_W_N200_AND_ESAL_DIR,
-    mode: int = 0,
+    mode: int = 5,
     # ----------------------------------------------
 ):
 
@@ -386,6 +409,13 @@ def main(
             title="Supplerende beregninger\nForskjell ved endring av klassifisering for tunge kjøretøy",
             label="tab:road-wear-indicators",
             caption="Forskjell ved endring av klassifisering for tunge kjøretøy",
+        )
+
+    if should_run_task(mode, MODE_ESTIMATED_REGISTRATIONS):
+        create_tex_for_images(
+            config.ESTIMATED_REGISTRATIONS_74T_DIR / "testing/figures",
+            config.ESTIMATED_REGISTRATIONS_74T_DIR / "testing/imageinputs.tex",
+            "testing",
         )
 
 
