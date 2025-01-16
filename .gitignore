@@ -1,6 +1,11 @@
 # Data
 /data/
 
+# cache etc
+/cache/
+.pytest_cache/
+.vscode
+
 # Mac OS-specific storage files
 .DS_Store
 
