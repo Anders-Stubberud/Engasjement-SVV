@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 import typer
 from loguru import logger
-from source.features_dir import estimated_registrations
+
 from source import config
 from source.config import MODE_AXLE_LOAD
 from source.config import MODE_ESTIMATED_REGISTRATIONS
@@ -13,6 +13,7 @@ from source.config import MODE_VEHICLE_WEIGHT_WIM
 from source.config import MODE_WIM_ROAD_WEAR_INDICATORS
 from source.config import PROCESSED_DATA_DIR
 from source.config import WIM_ROAD_WEAR_INDICATORS_DIR
+from source.features_dir import estimated_registrations
 from source.utils import should_run_task
 
 app = typer.Typer()
@@ -415,7 +416,8 @@ def main(
 
         create_tex_for_images(
             config.ESTIMATED_REGISTRATIONS_74T_DIR / f"{estimated_registrations.SUBPATH}/figures",
-            config.ESTIMATED_REGISTRATIONS_74T_DIR / f"{estimated_registrations.SUBPATH}/imageinputs.tex",
+            config.ESTIMATED_REGISTRATIONS_74T_DIR
+            / f"{estimated_registrations.SUBPATH}/imageinputs.tex",
             estimated_registrations.SUBPATH,
         )
 

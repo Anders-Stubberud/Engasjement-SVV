@@ -8,8 +8,8 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 from PIL import Image
 
-from source.config import ESTIMATED_REGISTRATIONS_74T_FIGURES_DIR
-from source.config import INTERIM_DATA_DIR, ESTIMATED_REGISTRATIONS_74T_DIR
+from source.config import ESTIMATED_REGISTRATIONS_74T_DIR
+from source.config import INTERIM_DATA_DIR
 from source.features_dir import estimated_registrations
 from source.utils import sanitize_filename
 
@@ -36,12 +36,9 @@ def main(road_coordinates, pickle_path, figures_dir):
         None
     """
 
-
     # Retrieve coordinate keys and pickle files
     keys = list(road_coordinates.keys())
-    pickle_files = [
-        pickle_path / f"{sanitize_filename(key)}_boundary.pkl" for key in keys
-    ]
+    pickle_files = [pickle_path / f"{sanitize_filename(key)}_boundary.pkl" for key in keys]
 
     os.makedirs(figures_dir, exist_ok=True)
 
@@ -115,10 +112,11 @@ def main(road_coordinates, pickle_path, figures_dir):
         )
         plt.close(fig)
 
+
 if __name__ == "__main__":
 
     main(
         estimated_registrations.ROAD_COORDINATES,
         INTERIM_DATA_DIR / "estimated_registrations" / estimated_registrations.SUBPATH,
-        ESTIMATED_REGISTRATIONS_74T_DIR / estimated_registrations.SUBPATH / 'figures',
+        ESTIMATED_REGISTRATIONS_74T_DIR / estimated_registrations.SUBPATH / "figures",
     )

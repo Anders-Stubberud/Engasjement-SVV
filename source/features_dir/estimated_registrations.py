@@ -2,6 +2,7 @@ import math
 import os
 import pickle
 from pathlib import Path
+
 import geopandas as gpd
 import osmnx as ox
 import pandas as pd
@@ -9,19 +10,21 @@ from geopy.distance import geodesic
 from shapely import MultiLineString
 from shapely.geometry import Point
 from shapely.ops import unary_union
-from source.utils import sanitize_filename
+from tqdm import tqdm
+
 from source.config import INTERIM_DATA_DIR
 from source.config import PROCESSED_DATA_DIR
 from source.config import RAW_DATA_DIR
 from source.config import TESTING_DATA_DIR
+from source.utils import sanitize_filename
 
 tonnages = (60, 65, 68, 74)
 years = range(2021, 2025)
 
 
 COORDINATES_TESTING = {
-    'Aasvegen': (60.748064, 11.322768),
-    'Skytragutua': (60.744695, 11.247904),
+    "Aasvegen": (60.748064, 11.322768),
+    "Skytragutua": (60.744695, 11.247904),
 }
 
 COORDINATE_POINTS_ROADS = {  # fant disse med https://vegkart.atlas.vegvesen.no/
@@ -35,12 +38,12 @@ COORDINATE_POINTS_ROADS = {  # fant disse med https://vegkart.atlas.vegvesen.no/
     "Fv1900 S1": (60.672633328131525, 11.298307776875701),
 }
 
-with open(INTERIM_DATA_DIR / 'bridges' / 'bridge_coordinates.pkl', 'rb') as f:
+with open(INTERIM_DATA_DIR / "bridges" / "bridge_coordinates.pkl", "rb") as f:
     BRIDGE_COORDINATES = pickle.load(f)
 
 ROAD_COORDINATES = BRIDGE_COORDINATES
 
-SUBPATH = 'bridges'
+SUBPATH = "bridges"
 
 DELTA_LOGGING_SECONDS = 350
 THRESHOLD_HIGH_SPEED_KMH = 90
@@ -225,8 +228,12 @@ def get_polygon_boundary(lat, lon):
     return road_lines.buffer(meters_to_degrees(50)[1])
 
 
-def load_polygon_boundary_from_file(road):
-    file_path = os.path.join(INTERIM_DATA_DIR / "estimated_registrations", f"{road}_boundary.pkl")
+def load_polygon_boundary_from_file(road, subpath):
+    file_path = os.path.join(
+        INTERIM_DATA_DIR / "estimated_registrations",
+        subpath,
+        f"{sanitize_filename(road)}_boundary.pkl",
+    )
     if os.path.exists(file_path):
         with open(file_path, "rb") as f:
             polygon_boundary = pickle.load(f).to_crs("EPSG:4326").geometry.iloc[0]
@@ -240,6 +247,7 @@ def table(
     road_coordinates: dict[str, tuple[float, float]],
     threshold_radius_km: float,
     threshold_time_hours: float,
+    subpath: Path,
 ) -> pd.DataFrame:
     """
     Generates a table with counts of registrations per road, tonnage, and year based on proximity and time criteria.
@@ -262,10 +270,10 @@ def table(
 
     VINs = df["VIN"].unique().tolist()
 
-    for road, (road_lon, road_lat) in road_coordinates.items():
+    for road, (road_lon, road_lat) in tqdm(road_coordinates.items(), desc="Processing roads"):
         most_recent_entry = {VIN: None for VIN in VINs}
         road_counts = {f"{year} {tonnage}t": 0 for year in years for tonnage in tonnages}
-        polygon_boundary = load_polygon_boundary_from_file(road)
+        polygon_boundary = load_polygon_boundary_from_file(road, subpath)
 
         for _, entry in df.iterrows():
             cur_point = Point(entry["Longitude"], entry["Latitude"])
@@ -406,14 +414,14 @@ def make_boundaries_automatically(
             pickle.dump(buffer_gdf, f)
 
 
-def main(testing=False, subpath = 'testing'):
+def main(testing=False, subpath="testing"):
     for mode in ["trailer_only", "truck_only"]:
 
-        # df = process_and_return_df(mode)
+        df = process_and_return_df(mode)
 
-        # df.to_csv(
-        #     f"{INTERIM_DATA_DIR / 'estimated_registrations'}/processed-{mode}.csv", index=False
-        # )
+        df.to_csv(
+            f"{INTERIM_DATA_DIR / 'estimated_registrations'}/processed-{mode}.csv", index=False
+        )
 
         df = (
             pd.read_csv(f"{INTERIM_DATA_DIR / 'estimated_registrations'}/processed-{mode}.csv")
@@ -423,17 +431,18 @@ def main(testing=False, subpath = 'testing'):
 
         df_table = table(
             df,
-            road_coordinates=COORDINATE_POINTS_ROADS,
+            road_coordinates=ROAD_COORDINATES,
             threshold_radius_km=THRESHOLD_KM_REGISTRATION_RADIUS_FROM_COORDINATE_POINT,
             threshold_time_hours=THRESHOLD_HOUR_AVOID_COUNTING_DUPLICATE_REGISTRATIONS,
+            subpath=SUBPATH,
         )
 
         output_file = (
-            PROCESSED_DATA_DIR / 'estimated_registrations' / subpath / f"final-{mode}.csv"
-                if not testing
-                else f"{TESTING_DATA_DIR / 'estimated_registrations'}/output.csv"
+            PROCESSED_DATA_DIR / "estimated_registrations" / subpath / f"final-{mode}.csv"
+            if not testing
+            else f"{TESTING_DATA_DIR / 'estimated_registrations'}/output.csv"
         )
-        
+
         os.makedirs(Path(output_file).parent, exist_ok=True)
 
         df_table.to_csv(output_file, index=False)
@@ -449,4 +458,4 @@ if __name__ == "__main__":
         storage=INTERIM_DATA_DIR / "estimated_registrations" / SUBPATH,
     )
 
-    # main(subpath=SUBPATH)
+    main(subpath=SUBPATH)
