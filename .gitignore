@@ -5,6 +5,7 @@
 /cache/
 .pytest_cache/
 .vscode
+reports/section_6-1/experiences_from_the_drivers.csv
 
 # Mac OS-specific storage files
 .DS_Store
