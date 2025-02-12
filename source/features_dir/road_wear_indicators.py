@@ -2,7 +2,7 @@
 # drive.mount('/content/drive')
 
 """
-Har også kjørt en del av denne koden i Colab på TPU m/ > 300 GB RAM pga problemer med å maxx'e ut minne lokalt 
+Har også kjørt en del av denne koden i Colab på TPU m/ > 300 GB RAM pga problemer med å maxx'e ut minne lokalt
 https://drive.google.com/drive/folders/1-Kx4B3vWme7ivE9TuTiT6X6kivBYe4yA?dmr=1&ec=wgc-drive-globalnav-goto
 """
 

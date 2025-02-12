@@ -41,9 +41,11 @@ COORDINATE_POINTS_ROADS = {  # fant disse med https://vegkart.atlas.vegvesen.no/
 with open(INTERIM_DATA_DIR / "bridges" / "bridge_coordinates.pkl", "rb") as f:
     BRIDGE_COORDINATES = pickle.load(f)
 
-ROAD_COORDINATES = BRIDGE_COORDINATES
+# ROAD_COORDINATES = BRIDGE_COORDINATES
+ROAD_COORDINATES = COORDINATE_POINTS_ROADS
 
-SUBPATH = "bridges"
+# SUBPATH = "bridges"
+SUBPATH = "otto"
 
 DELTA_LOGGING_SECONDS = 350
 THRESHOLD_HIGH_SPEED_KMH = 90
@@ -107,38 +109,31 @@ def vin_to_tonnage(vin):
     return {VIN: MAP_EQUIPAGE_TO_TONNAGE[equipage] for VIN, equipage in VIN_to_equipage.items()}
 
 
-def process_and_return_df(mode):
-    df_2021 = pd.read_csv(
-        os.path.join(RAW_DATA_DIR / "estimated_registrations", "2021-01-01_2021-12-31.csv"),
-        low_memory=False,
-    )
-    df_2022 = pd.read_csv(
-        os.path.join(RAW_DATA_DIR / "estimated_registrations", "2022-01-01_2022-12-31.csv"),
-        low_memory=False,
-    )
-    df_2023 = pd.read_csv(
-        os.path.join(RAW_DATA_DIR / "estimated_registrations", "2023-01-01_2023-12-31.csv"),
-        low_memory=False,
-    )
-    df_2024 = pd.read_csv(
-        os.path.join(RAW_DATA_DIR / "estimated_registrations", "2024-01-01_2024-07-09.csv"),
-        low_memory=False,
-    )
+def process_and_save_df(mode):
+    output_file = f"{INTERIM_DATA_DIR / 'estimated_registrations'}/processed-{mode}.csv"
 
-    merged_df = pd.concat([df_2021, df_2022, df_2023, df_2024], ignore_index=True)
+    if os.path.exists(output_file):
+        os.remove(output_file)
+
+    dfs_paths = [
+        os.path.join(RAW_DATA_DIR / "estimated_registrations", "2021-01-01_2021-12-31.csv"),
+        os.path.join(RAW_DATA_DIR / "estimated_registrations", "2022-01-01_2022-12-31.csv"),
+        os.path.join(RAW_DATA_DIR / "estimated_registrations", "2023-01-01_2023-12-31.csv"),
+        os.path.join(RAW_DATA_DIR / "estimated_registrations", "2024-01-01_2024-12-31.csv"),
+    ]
 
     VINs_of_interest = vins_of_interest(mode)
     VIN_to_tonnage = vin_to_tonnage(VINs_of_interest)
 
-    merged_df = merged_df[merged_df["VIN"].isin(VINs_of_interest)]
-    merged_df["Tonnage"] = merged_df["VIN"].map(VIN_to_tonnage)
-    merged_df["Hastighet"] = merged_df["Hastighet"].replace(",", ".", regex=True).astype(float)
-    merged_df["Dato"] = pd.to_datetime(merged_df["Dato"].str.replace(r"\.\d+$", "", regex=True))
-
-    merged_df = merged_df[["VIN", "Dato", "Latitude", "Longitude", "Hastighet", "Tonnage"]]
-    merged_df.sort_values(by="Dato", inplace=True)
-
-    return merged_df
+    for df_path in dfs_paths:
+        df = pd.read_csv(df_path, low_memory=False)
+        df = df[df["VIN"].isin(VINs_of_interest)]
+        df["Tonnage"] = df["VIN"].map(VIN_to_tonnage)
+        df["Hastighet"] = df["Hastighet"].replace(",", ".", regex=True).astype(float)
+        df["Dato"] = pd.to_datetime(df["Dato"].str.replace(r"\.\d+$", "", regex=True))
+        df = df[["VIN", "Dato", "Latitude", "Longitude", "Hastighet", "Tonnage"]]
+        df.sort_values(by="Dato", inplace=True)
+        df.to_csv(output_file, mode="a", header=not os.path.exists(output_file), index=False)
 
 
 def get_polygon_boundary(lat, lon):
@@ -199,6 +194,7 @@ def get_polygon_boundary(lat, lon):
         for idx, row in edges.iterrows():
             road_geometry = row["geometry"]
             if road_geometry is not None:
+
                 for geom in (
                     road_geometry.geoms
                     if isinstance(road_geometry, MultiLineString)
@@ -239,7 +235,17 @@ def load_polygon_boundary_from_file(road, subpath):
             polygon_boundary = pickle.load(f).to_crs("EPSG:4326").geometry.iloc[0]
         return polygon_boundary
     else:
-        raise FileNotFoundError(f"No polygon boundary file found for road: {road}")
+        file_path = os.path.join(
+            INTERIM_DATA_DIR / "estimated_registrations",
+            subpath,
+            f"{road}_boundary.pkl",
+        )
+        if os.path.exists(file_path):
+            with open(file_path, "rb") as f:
+                polygon_boundary = pickle.load(f).to_crs("EPSG:4326").geometry.iloc[0]
+            return polygon_boundary
+        else:
+            raise FileNotFoundError(f"No polygon boundary file found for road: {file_path}")
 
 
 def table(
@@ -417,11 +423,7 @@ def make_boundaries_automatically(
 def main(testing=False, subpath="testing"):
     for mode in ["trailer_only", "truck_only"]:
 
-        df = process_and_return_df(mode)
-
-        df.to_csv(
-            f"{INTERIM_DATA_DIR / 'estimated_registrations'}/processed-{mode}.csv", index=False
-        )
+        process_and_save_df(mode)
 
         df = (
             pd.read_csv(f"{INTERIM_DATA_DIR / 'estimated_registrations'}/processed-{mode}.csv")
@@ -453,9 +455,9 @@ def main(testing=False, subpath="testing"):
 
 if __name__ == "__main__":
 
-    make_boundaries_automatically(
-        road_coordinates=ROAD_COORDINATES,
-        storage=INTERIM_DATA_DIR / "estimated_registrations" / SUBPATH,
-    )
+    # make_boundaries_automatically(
+    #     road_coordinates=ROAD_COORDINATES,
+    #     storage=INTERIM_DATA_DIR / "estimated_registrations" / SUBPATH,
+    # )
 
     main(subpath=SUBPATH)
