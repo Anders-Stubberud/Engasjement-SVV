@@ -11,8 +11,8 @@ from source.config import MODE_ESTIMATED_REGISTRATIONS
 from source.config import MODE_VEHICLE_WEIGHT_74T
 from source.config import MODE_VEHICLE_WEIGHT_WIM
 from source.config import MODE_WIM_ROAD_WEAR_INDICATORS
-from source.config import PROCESSED_DATA_DIR
-from source.config import WIM_ROAD_WEAR_INDICATORS_DIR
+from source.config import PROCESSED_DATA_DIR, REPORTS_DIR
+from source.config import WIM_ROAD_WEAR_INDICATORS_DIR, MODE_ESTIMATED_REGISTRATIONS_PERCENTAGES
 from source.features_dir import estimated_registrations
 from source.utils import should_run_task
 
@@ -253,6 +253,7 @@ def generate_latex_catalog(
         if temp_file.exists():
             os.remove(temp_file)
 
+
 def generate_latex_with_multiple_tables(
     output_dir: Path,
     filename: str,
@@ -349,6 +350,7 @@ def generate_latex_with_multiple_tables(
         temp_file = latex_file.with_suffix(f".{ext}")
         if temp_file.exists():
             os.remove(temp_file)
+
 
 def generate_latex_with_table(
     output_dir: Path,
@@ -453,7 +455,7 @@ def main(
     # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
     input_path: Path = config.AXLE_LOAD_W_N200_AND_ESAL_FIGURES_DIR,
     output_path: Path = config.AXLE_LOAD_W_N200_AND_ESAL_DIR,
-    mode: int = 5,
+    mode: int = 6,
     # ----------------------------------------------
 ):
 
@@ -516,6 +518,15 @@ def main(
             / f"{estimated_registrations.SUBPATH}/imageinputs.tex",
             estimated_registrations.SUBPATH,
         )
+
+    if should_run_task(mode, MODE_ESTIMATED_REGISTRATIONS_PERCENTAGES):
+        generate_latex_with_multiple_tables(
+            output_dir=REPORTS_DIR / "estimated_registrations" / estimated_registrations.SUBPATH,
+            filename=f"percentage_74t_registrations",
+            title=f"Prosentandel BK74 registreringer av alle trafikkdata-registreringer",
+            info=estimated_registrations.percentage_74t_registrations(estimated_registrations.SUBPATH),
+        )
+
 
 
 if __name__ == "__main__":

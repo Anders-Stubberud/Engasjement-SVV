@@ -41,14 +41,14 @@ with open(INTERIM_DATA_DIR / "bridges" / "bridge_coordinates.pkl", "rb") as f:
     BRIDGE_COORDINATES = pickle.load(f)
 
 COORDINATES_BWIM_74T = {
-    'Sørbryn bru (Svartelva)': (60.790036291522725, 11.298908392781641),
-    'Tangensvingen bru (Tangensvingen vest)': (60.88848554945865, 11.570661932248345)
+    "Sørbryn bru (Svartelva)": (60.790036291522725, 11.298908392781641),
+    "Tangensvingen bru (Tangensvingen vest)": (60.88848554945865, 11.570661932248345),
 }
 
 ##################################################
 # region Setup                                   #
-ROAD_COORDINATES = COORDINATES_BWIM_74T          #
-SUBPATH = "bwim74t"                              #
+ROAD_COORDINATES = COORDINATES_BWIM_74T  #
+SUBPATH = "bwim74t"  #
 # endregion                                      #
 ##################################################
 
@@ -250,7 +250,16 @@ def load_polygon_boundary_from_file(road, subpath):
                 polygon_boundary = pickle.load(f).to_crs("EPSG:4326").geometry.iloc[0]
             return polygon_boundary
         else:
-            raise FileNotFoundError(f"No polygon boundary file found for road: {file_path}")
+            file_path = os.path.join(
+                TESTING_DATA_DIR / "estimated_registrations"/
+                f"{sanitize_filename(road)}_boundary.pkl",
+            )
+            if os.path.exists(file_path):
+                with open(file_path, "rb") as f:
+                    polygon_boundary = pickle.load(f).to_crs("EPSG:4326").geometry.iloc[0]
+                return polygon_boundary
+            else:
+                raise FileNotFoundError(f"No polygon boundary file found for road: {file_path}")
 
 
 def table(
@@ -425,20 +434,97 @@ def make_boundaries_automatically(
         with open(storage / f"{sanitize_filename(road)}_boundary.pkl", "wb") as f:
             pickle.dump(buffer_gdf, f)
 
-def percentage_74t_registrations():
-    
-    def get_all_registrations():
-        pass
 
-def main(road_coordinates, testing=False, subpath="testing"):
+def percentage_74t_registrations(subpath: str):
+
+    def get_all_registrations(unsanitized_location: str):
+        """ """
+        sanitized_filename = sanitize_filename(unsanitized_location)
+        df = pd.read_csv(
+            RAW_DATA_DIR
+            / "estimated_registrations"
+            / "total_registrations_bwim74t"
+            / f"{sanitized_filename}.csv",
+            sep=";",
+            encoding_errors="ignore",
+        )
+        df = df[df["Felt"] == "Totalt"]
+        df["Year"] = pd.to_datetime(df["Fra"]).dt.year
+        return df
+
+    processed_data_project_path = PROCESSED_DATA_DIR / "estimated_registrations" / subpath
+
+    df_truck = pd.read_csv(processed_data_project_path / "final-truck_only.csv")
+    df_trailer = pd.read_csv(processed_data_project_path / "final-trailer_only.csv")
+    dfs = [df_truck, df_trailer]
+
+    for i, df_74t in enumerate(dfs):
+        final_info = []
+        for road in df_74t["Vei"].to_list():
+            data = []
+            df_all_registrations_for_road = get_all_registrations(road)
+            for year in [2021, 2022, 2023, 2024]:
+                all_registrations_for_year_in_16_24_category = df_all_registrations_for_road[
+                    df_all_registrations_for_road["Year"] == year
+                ]["16,0m - 24,0m"]
+                all_registrations_for_year_in_above_24_category = df_all_registrations_for_road[
+                    df_all_registrations_for_road["Year"] == year
+                ][">= 24,0m"]
+                all_registrations_year_16_and_above = (
+                    all_registrations_for_year_in_16_24_category
+                    + all_registrations_for_year_in_above_24_category
+                )
+
+                n_74t_registrations_year_road_60 = df_74t[df_74t["Vei"] == road][f"{year} 60t"]
+                n_74t_registrations_year_road_65 = df_74t[df_74t["Vei"] == road][f"{year} 65t"]
+                n_74t_registrations_year_road_68 = df_74t[df_74t["Vei"] == road][f"{year} 68t"]
+                n_74t_registrations_year_road_74 = df_74t[df_74t["Vei"] == road][f"{year} 74t"]
+                n_74t_registrations_year_road_total = (
+                    n_74t_registrations_year_road_60
+                    + n_74t_registrations_year_road_65
+                    + n_74t_registrations_year_road_68
+                    + n_74t_registrations_year_road_74
+                )
+
+                percentage_74t_registrations_year_road = (
+                    n_74t_registrations_year_road_total / all_registrations_year_16_and_above * 100
+                )
+
+                data.append(
+                    {
+                        "År": year,
+                        "60t (3+4)": n_74t_registrations_year_road_60,
+                        "65t (4+4)": n_74t_registrations_year_road_65,
+                        "68t (3+5)": n_74t_registrations_year_road_68,
+                        "74t (4+5)": n_74t_registrations_year_road_74,
+                        "Totalt BK74": n_74t_registrations_year_road_total,
+                        "Prosent BK74": percentage_74t_registrations_year_road,
+                    }
+                )
+
+            df = pd.DataFrame(data)
+            os.makedirs(processed_data_project_path / "percentages", exist_ok=True)
+            df.to_csv(
+                processed_data_project_path
+                / "percentages"
+                / f"{'trailer' if i else 'truck'}_percentages{road}.csv",
+                index=False,
+            )
+            caption = f"Prosentandel BK74 {'tilhenger' if i else 'lastebil'}-registreringer av alle trafikkdata-registreringer for {road}"
+            final_info.append((df, caption))
+
+    return final_info
+
+
+def main(road_coordinates, testing=False, subpath="testing", testfile='input.csv', testoutput='output.csv'):
     for mode in ["trailer_only", "truck_only"]:
 
-        process_and_save_df(mode)
+        # process_and_save_df(mode)
 
         df = (
             pd.read_csv(f"{INTERIM_DATA_DIR / 'estimated_registrations'}/processed-{mode}.csv")
             if not testing
-            else pd.read_csv(f"{TESTING_DATA_DIR / 'estimated_registrations'}/input.csv")
+            else pd.read_csv(f"{TESTING_DATA_DIR / 'estimated_registrations' / testfile}")
         )
 
         df_table = table(
@@ -452,7 +538,7 @@ def main(road_coordinates, testing=False, subpath="testing"):
         output_file = (
             PROCESSED_DATA_DIR / "estimated_registrations" / subpath / f"final-{mode}.csv"
             if not testing
-            else f"{TESTING_DATA_DIR / 'estimated_registrations'}/output.csv"
+            else f"{TESTING_DATA_DIR / 'estimated_registrations' / testoutput}"
         )
 
         os.makedirs(Path(output_file).parent, exist_ok=True)

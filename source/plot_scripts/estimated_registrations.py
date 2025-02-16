@@ -1,13 +1,15 @@
+import math
 import os
 import pickle
-import math
-from io import BytesIO
 import time
+from io import BytesIO
+
 import folium
 import geopandas as gpd
+from PIL import Image
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service as FirefoxService
-from PIL import Image
+
 from source.config import ESTIMATED_REGISTRATIONS_74T_DIR
 from source.config import INTERIM_DATA_DIR
 from source.features_dir import estimated_registrations
@@ -32,7 +34,7 @@ def main(road_coordinates, pickle_path, figures_dir):
 
     options = webdriver.FirefoxOptions()
     options.add_argument("--headless")
-    service = FirefoxService(executable_path='/snap/bin/geckodriver')
+    service = FirefoxService(executable_path="/snap/bin/geckodriver")
     driver = webdriver.Firefox(service=service, options=options)
 
     keys = list(road_coordinates.keys())
@@ -66,7 +68,11 @@ def main(road_coordinates, pickle_path, figures_dir):
             boundary = pickle.load(f)
 
         # Ensure boundary is a GeoDataFrame
-        boundary_gdf = gpd.GeoDataFrame(geometry=[boundary], crs="EPSG:4326") if not isinstance(boundary, gpd.GeoDataFrame) else boundary
+        boundary_gdf = (
+            gpd.GeoDataFrame(geometry=[boundary], crs="EPSG:4326")
+            if not isinstance(boundary, gpd.GeoDataFrame)
+            else boundary
+        )
 
         # Add boundary as GeoJSON
         folium.GeoJson(
