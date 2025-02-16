@@ -1,13 +1,13 @@
-import math
 import os
 import pickle
+import math
 from io import BytesIO
-
+import time
 import folium
 import geopandas as gpd
-import matplotlib.pyplot as plt
+from selenium import webdriver
+from selenium.webdriver.firefox.service import Service as FirefoxService
 from PIL import Image
-
 from source.config import ESTIMATED_REGISTRATIONS_74T_DIR
 from source.config import INTERIM_DATA_DIR
 from source.features_dir import estimated_registrations
@@ -25,26 +25,21 @@ def meters_to_degrees(meters, lat):
 
 def main(road_coordinates, pickle_path, figures_dir):
     """
-    Bruker veger og koordinater fra road_coords til å generere kart med det tilhørende polygon-bufferet fra pickel_path.
-    Lagrer kartet som en png-fil i figures_dir/vegnavn.png.
-
-    Parameters:
-        road_coordinates (dict): A dictionary where keys are road identifiers and values are coordinate points.
-        pickle_path (Path): Path to the directory containing pickle files with boundary data.
-        figures_dir (Path): Directory where the generated figures will be saved.
-    Returns:
-        None
+    Generate maps for roads with corresponding boundary buffers and save them as PNG images.
     """
+    # Create output directory if not exists
+    os.makedirs(figures_dir, exist_ok=True)
 
-    # Retrieve coordinate keys and pickle files
+    options = webdriver.FirefoxOptions()
+    options.add_argument("--headless")
+    service = FirefoxService(executable_path='/snap/bin/geckodriver')
+    driver = webdriver.Firefox(service=service, options=options)
+
     keys = list(road_coordinates.keys())
     pickle_files = [pickle_path / f"{sanitize_filename(key)}_boundary.pkl" for key in keys]
 
-    os.makedirs(figures_dir, exist_ok=True)
-
-    # Loop through keys and pickle files
+    # Loop through roads and generate maps
     for key, pickle_file in zip(keys, pickle_files):
-        # Get coordinates and buffer dimensions
         lat, lon = road_coordinates[key]
         lat_buf, lon_buf = meters_to_degrees(
             estimated_registrations.THRESHOLD_METER_REGISTRATION_RADIUS_FROM_COORDINATE_POINT
@@ -52,14 +47,10 @@ def main(road_coordinates, pickle_path, figures_dir):
             lat,
         )
 
-        if key == "Fv1900 S1":
-            zoom = 12
-        else:
-            zoom = 13
-
+        zoom = 12 if key == "Fv1900 S1" else 13
         m = folium.Map(location=[lat, lon], zoom_start=zoom)
 
-        # Add the buffer area as a polygon
+        # Add polygon buffer area
         buffer_coords = [
             [lat - lat_buf, lon - lon_buf],
             [lat - lat_buf, lon + lon_buf],
@@ -70,24 +61,21 @@ def main(road_coordinates, pickle_path, figures_dir):
             locations=buffer_coords, color="none", fill=True, tooltip="Buffer Area"
         ).add_to(m)
 
-        # Load the boundary from the pickle file
+        # Load boundary from pickle
         with open(pickle_file, "rb") as f:
             boundary = pickle.load(f)
 
-        # If the boundary is a GeoDataFrame, use it directly, otherwise create one
-        if isinstance(boundary, gpd.GeoDataFrame):
-            boundary_gdf = boundary
-        else:
-            boundary_gdf = gpd.GeoDataFrame(geometry=[boundary], crs="EPSG:4326")
+        # Ensure boundary is a GeoDataFrame
+        boundary_gdf = gpd.GeoDataFrame(geometry=[boundary], crs="EPSG:4326") if not isinstance(boundary, gpd.GeoDataFrame) else boundary
 
-        # Add the boundary as a GeoJSON layer to the map
+        # Add boundary as GeoJSON
         folium.GeoJson(
             boundary_gdf,
             name="Boundary",
             style_function=lambda x: {"color": "red", "weight": 2, "fillOpacity": 0.2},
         ).add_to(m)
 
-        # Add a marker for the center point
+        # Add marker for center point
         folium.Marker(
             location=[lat, lon],
             popup=f"<b>Key:</b> {key}",
@@ -95,26 +83,23 @@ def main(road_coordinates, pickle_path, figures_dir):
             icon=folium.Icon(color="red", icon="info-sign"),
         ).add_to(m)
 
-        img_data = m._to_png(5)  # 5 for higher DPI
+        # Save map to HTML file
+        map_html_path = figures_dir / f"{sanitize_filename(key)}.html"
+        m.save(map_html_path)
 
-        # Open the image data using Pillow
+        # Open the HTML file in the headless browser and take a screenshot
+        driver.get(f"file://{map_html_path}")
+        time.sleep(0.5)
+        img_data = driver.get_screenshot_as_png()
+
+        # Save the image
         img = Image.open(BytesIO(img_data))
-        fig, ax = plt.subplots(figsize=(10, 10))
-        ax.axis("off")
-        ax.set_title(f"{key} ({lat}, {lon})")
-        ax.imshow(img)
-        plt.savefig(
-            figures_dir / f"{sanitize_filename(key)}.png",
-            format="png",
-            bbox_inches="tight",
-            pad_inches=0,
-            dpi=300,
-        )
-        plt.close(fig)
+        img.save(figures_dir / f"{sanitize_filename(key)}.png", "PNG")
+        map_html_path.unlink()
+    driver.quit()
 
 
 if __name__ == "__main__":
-
     main(
         estimated_registrations.ROAD_COORDINATES,
         INTERIM_DATA_DIR / "estimated_registrations" / estimated_registrations.SUBPATH,

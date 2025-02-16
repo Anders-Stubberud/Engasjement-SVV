@@ -253,6 +253,102 @@ def generate_latex_catalog(
         if temp_file.exists():
             os.remove(temp_file)
 
+def generate_latex_with_multiple_tables(
+    output_dir: Path,
+    filename: str,
+    title: str,
+    info: tuple[tuple[pd.DataFrame, str]],
+) -> None:
+    """
+    Generate a LaTeX document with a table from a pandas DataFrame and compile it into a PDF.
+
+    Args:
+        output_dir (Path): The directory to save the output.
+        filename (str): The name of the LaTeX file (without extension).
+        title (str): The title of the document.
+        info (tuple[tuple[pd.DataFrame, str, str]]): A tuple of tuples containing a DataFrame, and caption.
+
+    Returns:
+        None
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    if not os.path.exists(output_dir / "input.tex"):
+        with open(output_dir / "input.tex", "w") as f:
+            pass
+
+    if not os.path.exists(output_dir / "validering.tex"):
+        with open(output_dir / "input.tex", "w") as f:
+            pass
+
+    latex_file = output_dir / f"{filename}.tex"
+
+    # Generate LaTeX code for the table
+    latex_table_code = "\\begin{table}[H]\n"
+    latex_table_code += "\\centering\n"
+    latex_table_code += "\\resizebox{\\linewidth}{!}{\n"
+    for df, caption in info:
+        latex_table_code += df.to_latex(index=False, escape=False, float_format="%.2f")
+        latex_table_code += f"\\caption{{{caption}}}\n"
+    latex_table_code += "}\n"
+    latex_table_code += "\\end{table}\n"
+
+    # Write the LaTeX document
+    with open(latex_file, "w") as f:
+        f.write(r"\documentclass{article}" + "\n")
+        f.write(r"\usepackage{graphicx}" + "\n")
+        f.write(r"\usepackage{float}" + "\n")  # For H specifier
+        f.write(r"\usepackage{booktabs}" + "\n")
+        f.write(r"\usepackage[utf8]{inputenc}" + "\n")
+        f.write(r"\usepackage{listings}" + "\n")
+        f.write(r"\usepackage{graphicx}" + "\n")
+        f.write(r"\usepackage{xcolor}" + "\n")
+        f.write(r"\usepackage{amsmath}" + "\n")
+        f.write(
+            r"""
+            \lstset{
+                language=Python,
+                backgroundcolor=\color{white}, % Set background color for code
+                basicstyle=\ttfamily, % Set font for code
+                keywordstyle=\color{blue}, % Color for keywords
+                commentstyle=\color{green}, % Color for comments
+                stringstyle=\color{red}, % Color for strings
+                showstringspaces=false, % Don't show spaces in strings
+                breaklines=true, % Break long lines
+                frame=single % Add frame around code
+            }
+        """
+            + "\n"
+        )
+        f.write(r"\usepackage{tocloft}" + "\n")  # Optional: for TOC styling
+        f.write(r"\usepackage[norsk]{babel}" + "\n")  # Norwegian language
+        f.write(
+            r"\usepackage[a4paper, left=20mm, right=20mm, top=25mm, bottom=25mm]{geometry}" + "\n"
+        )
+        f.write(
+            r"\usepackage[linkcolor=black, urlcolor=black, citecolor=black, hidelinks]{hyperref}"
+            + "\n"
+        )
+        f.write(r"\begin{document}" + "\n")
+        f.write(f"\\title{{{title.replace('\n', '\\\\')}}}\n")
+        f.write(r"\author{Anders V. Stubberud}" + "\n")
+        f.write(r"\maketitle" + "\n")
+        f.write(r"\tableofcontents" + "\n")
+        f.write(r"\input{input.tex}" + "\n")
+        f.write(latex_table_code)
+        f.write(r"\input{validering.tex}" + "\n")
+        f.write(r"\end{document}" + "\n")
+
+    try:
+        os.system(f"pdflatex -output-directory={output_dir} {latex_file}")
+        os.system(f"pdflatex -output-directory={output_dir} {latex_file}")
+    except Exception as e:
+        logger.error(f"LaTeX compilation failed: {e}")
+
+    for ext in ["aux", "log", "toc", "out"]:
+        temp_file = latex_file.with_suffix(f".{ext}")
+        if temp_file.exists():
+            os.remove(temp_file)
 
 def generate_latex_with_table(
     output_dir: Path,

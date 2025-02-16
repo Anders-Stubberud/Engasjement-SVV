@@ -21,7 +21,6 @@ from source.utils import sanitize_filename
 tonnages = (60, 65, 68, 74)
 years = range(2021, 2025)
 
-
 COORDINATES_TESTING = {
     "Aasvegen": (60.748064, 11.322768),
     "Skytragutua": (60.744695, 11.247904),
@@ -41,11 +40,17 @@ COORDINATE_POINTS_ROADS = {  # fant disse med https://vegkart.atlas.vegvesen.no/
 with open(INTERIM_DATA_DIR / "bridges" / "bridge_coordinates.pkl", "rb") as f:
     BRIDGE_COORDINATES = pickle.load(f)
 
-# ROAD_COORDINATES = BRIDGE_COORDINATES
-ROAD_COORDINATES = COORDINATE_POINTS_ROADS
+COORDINATES_BWIM_74T = {
+    'Sørbryn bru (Svartelva)': (60.790036291522725, 11.298908392781641),
+    'Tangensvingen bru (Tangensvingen vest)': (60.88848554945865, 11.570661932248345)
+}
 
-# SUBPATH = "bridges"
-SUBPATH = "otto"
+##################################################
+# region Setup                                   #
+ROAD_COORDINATES = COORDINATES_BWIM_74T          #
+SUBPATH = "bwim74t"                              #
+# endregion                                      #
+##################################################
 
 DELTA_LOGGING_SECONDS = 350
 THRESHOLD_HIGH_SPEED_KMH = 90
@@ -315,6 +320,7 @@ def make_boundaries_automatically(
     Lagrer i EPSG:3857.
     Baserer seg på osmnx, som mulig kutter noen av veiene litt kort (burde evt rettes manuelt i ipynb 11.)
     Lagrer file i storage/vegnavn.pkl
+
     Args:
         road_coordinates (dict[str, tuple[float, float]]): A dictionary where the keys are road identifiers (strings)
         and the values are tuples containing latitude and longitude coordinates (floats).
@@ -419,8 +425,12 @@ def make_boundaries_automatically(
         with open(storage / f"{sanitize_filename(road)}_boundary.pkl", "wb") as f:
             pickle.dump(buffer_gdf, f)
 
+def percentage_74t_registrations():
+    
+    def get_all_registrations():
+        pass
 
-def main(testing=False, subpath="testing"):
+def main(road_coordinates, testing=False, subpath="testing"):
     for mode in ["trailer_only", "truck_only"]:
 
         process_and_save_df(mode)
@@ -433,10 +443,10 @@ def main(testing=False, subpath="testing"):
 
         df_table = table(
             df,
-            road_coordinates=ROAD_COORDINATES,
+            road_coordinates=road_coordinates,
             threshold_radius_km=THRESHOLD_KM_REGISTRATION_RADIUS_FROM_COORDINATE_POINT,
             threshold_time_hours=THRESHOLD_HOUR_AVOID_COUNTING_DUPLICATE_REGISTRATIONS,
-            subpath=SUBPATH,
+            subpath=subpath,
         )
 
         output_file = (
@@ -460,4 +470,4 @@ if __name__ == "__main__":
     #     storage=INTERIM_DATA_DIR / "estimated_registrations" / SUBPATH,
     # )
 
-    main(subpath=SUBPATH)
+    main(ROAD_COORDINATES, subpath=SUBPATH)

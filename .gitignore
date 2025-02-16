@@ -3,6 +3,7 @@
 
 # cache etc
 /cache/
+/latex/
 .pytest_cache/
 .vscode
 reports/section_6-1/experiences_from_the_drivers.csv
