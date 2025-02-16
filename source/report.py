@@ -8,11 +8,13 @@ from loguru import logger
 from source import config
 from source.config import MODE_AXLE_LOAD
 from source.config import MODE_ESTIMATED_REGISTRATIONS
+from source.config import MODE_ESTIMATED_REGISTRATIONS_PERCENTAGES
 from source.config import MODE_VEHICLE_WEIGHT_74T
 from source.config import MODE_VEHICLE_WEIGHT_WIM
 from source.config import MODE_WIM_ROAD_WEAR_INDICATORS
-from source.config import PROCESSED_DATA_DIR, REPORTS_DIR
-from source.config import WIM_ROAD_WEAR_INDICATORS_DIR, MODE_ESTIMATED_REGISTRATIONS_PERCENTAGES
+from source.config import PROCESSED_DATA_DIR
+from source.config import REPORTS_DIR
+from source.config import WIM_ROAD_WEAR_INDICATORS_DIR
 from source.features_dir import estimated_registrations
 from source.utils import should_run_task
 
@@ -524,9 +526,10 @@ def main(
             output_dir=REPORTS_DIR / "estimated_registrations" / estimated_registrations.SUBPATH,
             filename=f"percentage_74t_registrations",
             title=f"Prosentandel BK74 registreringer av alle trafikkdata-registreringer",
-            info=estimated_registrations.percentage_74t_registrations(estimated_registrations.SUBPATH),
+            info=estimated_registrations.percentage_74t_registrations(
+                estimated_registrations.SUBPATH
+            ),
         )
-
 
 
 if __name__ == "__main__":

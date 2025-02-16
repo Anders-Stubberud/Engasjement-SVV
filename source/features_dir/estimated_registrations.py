@@ -11,6 +11,7 @@ from shapely import MultiLineString
 from shapely.geometry import Point
 from shapely.ops import unary_union
 from tqdm import tqdm
+import numpy as np
 
 from source.config import INTERIM_DATA_DIR
 from source.config import PROCESSED_DATA_DIR
@@ -251,8 +252,9 @@ def load_polygon_boundary_from_file(road, subpath):
             return polygon_boundary
         else:
             file_path = os.path.join(
-                TESTING_DATA_DIR / "estimated_registrations"/
-                f"{sanitize_filename(road)}_boundary.pkl",
+                TESTING_DATA_DIR
+                / "estimated_registrations"
+                / f"{sanitize_filename(road)}_boundary.pkl",
             )
             if os.path.exists(file_path):
                 with open(file_path, "rb") as f:
@@ -260,6 +262,39 @@ def load_polygon_boundary_from_file(road, subpath):
                 return polygon_boundary
             else:
                 raise FileNotFoundError(f"No polygon boundary file found for road: {file_path}")
+
+
+def filter_points_near_road(
+    df: pd.DataFrame, road_lon: float, road_lat: float, radius_km: float = 5
+):
+    """
+    Filters points within a given radius (in km) from a single road location.
+
+    Parameters:
+        df (pd.DataFrame): DataFrame with 'Latitude' and 'Longitude' columns.
+        road_lon (float): Longitude of the road.
+        road_lat (float): Latitude of the road.
+        radius_km (float): Radius in kilometers for filtering points.
+
+    Returns:
+        pd.DataFrame: Filtered DataFrame with points within the radius.
+    """
+    # Convert points and road coordinates to radians
+    lat1, lon1 = np.radians(road_lat), np.radians(road_lon)
+    lat2, lon2 = np.radians(df["Latitude"].values), np.radians(df["Longitude"].values)
+
+    # Compute Haversine formula
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = np.sin(dlat / 2.0) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2.0) ** 2
+    c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
+    distances = 6371 * c  # Earth's radius in km
+
+    # Filter points within the radius
+    dff = df[distances <= radius_km].reset_index(drop=True)
+    dff[(dff['Hastighet'] > 40) & (dff['Hastighet'].notna()) & (dff['Hastighet'].notnull())]
+
+    return dff
 
 
 def table(
@@ -290,12 +325,15 @@ def table(
 
     VINs = df["VIN"].unique().tolist()
 
-    for road, (road_lon, road_lat) in tqdm(road_coordinates.items(), desc="Processing roads"):
+    for road, (road_lat, road_lon) in tqdm(road_coordinates.items(), desc="Processing roads"):
         most_recent_entry = {VIN: None for VIN in VINs}
         road_counts = {f"{year} {tonnage}t": 0 for year in years for tonnage in tonnages}
         polygon_boundary = load_polygon_boundary_from_file(road, subpath)
+        df_relevant = filter_points_near_road(
+            df, road_lon, road_lat, radius_km=1
+        )
 
-        for _, entry in df.iterrows():
+        for _, entry in df_relevant.iterrows():
             cur_point = Point(entry["Longitude"], entry["Latitude"])
             if polygon_boundary.contains(cur_point):
                 VIN = entry["VIN"]
@@ -435,88 +473,13 @@ def make_boundaries_automatically(
             pickle.dump(buffer_gdf, f)
 
 
-def percentage_74t_registrations(subpath: str):
-
-    def get_all_registrations(unsanitized_location: str):
-        """ """
-        sanitized_filename = sanitize_filename(unsanitized_location)
-        df = pd.read_csv(
-            RAW_DATA_DIR
-            / "estimated_registrations"
-            / "total_registrations_bwim74t"
-            / f"{sanitized_filename}.csv",
-            sep=";",
-            encoding_errors="ignore",
-        )
-        df = df[df["Felt"] == "Totalt"]
-        df["Year"] = pd.to_datetime(df["Fra"]).dt.year
-        return df
-
-    processed_data_project_path = PROCESSED_DATA_DIR / "estimated_registrations" / subpath
-
-    df_truck = pd.read_csv(processed_data_project_path / "final-truck_only.csv")
-    df_trailer = pd.read_csv(processed_data_project_path / "final-trailer_only.csv")
-    dfs = [df_truck, df_trailer]
-
-    for i, df_74t in enumerate(dfs):
-        final_info = []
-        for road in df_74t["Vei"].to_list():
-            data = []
-            df_all_registrations_for_road = get_all_registrations(road)
-            for year in [2021, 2022, 2023, 2024]:
-                all_registrations_for_year_in_16_24_category = df_all_registrations_for_road[
-                    df_all_registrations_for_road["Year"] == year
-                ]["16,0m - 24,0m"]
-                all_registrations_for_year_in_above_24_category = df_all_registrations_for_road[
-                    df_all_registrations_for_road["Year"] == year
-                ][">= 24,0m"]
-                all_registrations_year_16_and_above = (
-                    all_registrations_for_year_in_16_24_category
-                    + all_registrations_for_year_in_above_24_category
-                )
-
-                n_74t_registrations_year_road_60 = df_74t[df_74t["Vei"] == road][f"{year} 60t"]
-                n_74t_registrations_year_road_65 = df_74t[df_74t["Vei"] == road][f"{year} 65t"]
-                n_74t_registrations_year_road_68 = df_74t[df_74t["Vei"] == road][f"{year} 68t"]
-                n_74t_registrations_year_road_74 = df_74t[df_74t["Vei"] == road][f"{year} 74t"]
-                n_74t_registrations_year_road_total = (
-                    n_74t_registrations_year_road_60
-                    + n_74t_registrations_year_road_65
-                    + n_74t_registrations_year_road_68
-                    + n_74t_registrations_year_road_74
-                )
-
-                percentage_74t_registrations_year_road = (
-                    n_74t_registrations_year_road_total / all_registrations_year_16_and_above * 100
-                )
-
-                data.append(
-                    {
-                        "År": year,
-                        "60t (3+4)": n_74t_registrations_year_road_60,
-                        "65t (4+4)": n_74t_registrations_year_road_65,
-                        "68t (3+5)": n_74t_registrations_year_road_68,
-                        "74t (4+5)": n_74t_registrations_year_road_74,
-                        "Totalt BK74": n_74t_registrations_year_road_total,
-                        "Prosent BK74": percentage_74t_registrations_year_road,
-                    }
-                )
-
-            df = pd.DataFrame(data)
-            os.makedirs(processed_data_project_path / "percentages", exist_ok=True)
-            df.to_csv(
-                processed_data_project_path
-                / "percentages"
-                / f"{'trailer' if i else 'truck'}_percentages{road}.csv",
-                index=False,
-            )
-            caption = f"Prosentandel BK74 {'tilhenger' if i else 'lastebil'}-registreringer av alle trafikkdata-registreringer for {road}"
-            final_info.append((df, caption))
-
-    return final_info
-
-
-def main(road_coordinates, testing=False, subpath="testing", testfile='input.csv', testoutput='output.csv'):
+def main(
+    road_coordinates,
+    testing=False,
+    subpath="testing",
+    testfile="input.csv",
+    testoutput="output.csv",
+):
     for mode in ["trailer_only", "truck_only"]:
 
         # process_and_save_df(mode)
