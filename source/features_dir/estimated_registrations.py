@@ -291,11 +291,9 @@ def filter_points_near_road(
     distances = 6371 * c  # Earth's radius in km
 
     # Filter points within the radius
-    dff = df[distances <= radius_km].reset_index(drop=True)
-    dff[(dff['Hastighet'] > 40) & (dff['Hastighet'].notna()) & (dff['Hastighet'].notnull())]
-
-    return dff
-
+    df_filtered = df[distances <= radius_km].reset_index(drop=True)
+    df_filtered = df_filtered[(df_filtered['Hastighet'] > 40) & (df_filtered['Hastighet'].notna()) & (df_filtered['Hastighet'].notnull())]
+    return df_filtered
 
 def table(
     df: pd.DataFrame,
@@ -324,38 +322,40 @@ def table(
     result = {col: [] for col in columns}
 
     VINs = df["VIN"].unique().tolist()
-
+    latlons = []
     for road, (road_lat, road_lon) in tqdm(road_coordinates.items(), desc="Processing roads"):
         most_recent_entry = {VIN: None for VIN in VINs}
         road_counts = {f"{year} {tonnage}t": 0 for year in years for tonnage in tonnages}
         polygon_boundary = load_polygon_boundary_from_file(road, subpath)
         df_relevant = filter_points_near_road(
-            df, road_lon, road_lat, radius_km=1
+            df, road_lon, road_lat, radius_km=5
         )
-
+        df_relevant = df_relevant[df_relevant.apply(
+            lambda entry: polygon_boundary.contains(Point(entry["Longitude"], entry["Latitude"])), axis=1)
+        ].sort_values(by="Dato", ascending=True)
+        print(len(df_relevant))
         for _, entry in df_relevant.iterrows():
-            cur_point = Point(entry["Longitude"], entry["Latitude"])
-            if polygon_boundary.contains(cur_point):
-                VIN = entry["VIN"]
-                entry_time = entry["Dato"]
-                if (
-                    most_recent_entry[VIN] is None
-                    or (entry_time - most_recent_entry[VIN]).total_seconds() / 3600
-                    > threshold_time_hours
-                ):
-                    most_recent_entry[VIN] = entry_time
-
-                    year = entry["Dato"].year
-                    tonnage = entry["Tonnage"]
-                    key = f"{year} {tonnage}t"
-                    if key in road_counts:
-                        road_counts[key] += 1
-
+            VIN = entry["VIN"]
+            entry_time = entry["Dato"]
+            if (
+                most_recent_entry[VIN] is None
+                or (entry_time - most_recent_entry[VIN]).total_seconds() / 3600
+                > threshold_time_hours
+            ):
+                most_recent_entry[VIN] = entry_time
+                year = entry_time.year
+                tonnage = entry["Tonnage"]
+                key = f"{year} {tonnage}t"
+                if key in road_counts:
+                    road_counts[key] += 1
+                    if 'Tangen' in road:
+                        latlons.append((entry_time, entry["Latitude"], entry["Longitude"]))
         result["Vei"].append(road)
 
         for key, value in road_counts.items():
             result[key].append(value)
 
+    pd.DataFrame(columns=['Date', 'Latitude', 'Longitude'], data=latlons).to_csv(f"{INTERIM_DATA_DIR / 'estimated_registrations' / subpath / 'latlons.csv'}", index=False)
     return pd.DataFrame(result)
 
 
@@ -480,7 +480,9 @@ def main(
     testfile="input.csv",
     testoutput="output.csv",
 ):
-    for mode in ["trailer_only", "truck_only"]:
+    # for mode in ["trailer_only", "truck_only"]:
+    for mode in ["truck_only"]:
+
 
         # process_and_save_df(mode)
 
