@@ -301,6 +301,7 @@ def table(
     threshold_radius_km: float,
     threshold_time_hours: float,
     subpath: Path,
+    valid_dates: tuple[pd.TimedeltaIndex] = None,
 ) -> pd.DataFrame:
     """
     Generates a table with counts of registrations per road, tonnage, and year based on proximity and time criteria.
@@ -310,19 +311,16 @@ def table(
         road_coordinates (dict): A dictionary mapping road names to (latitude, longitude) tuples.
         threshold_radius_km (float): Maximum distance in kilometers to consider a registration near a road.
         threshold_time_hours (float): Minimum time in hours to avoid counting duplicate registrations.
-
+        subpath (Path): Path to the directory where the polygon boundaries are stored.
+        valid_dates (tuple): A tuple of valid dates to consider (BWIM som kun er oppe i perioder). If None, all dates are considered.
     Returns:
         pd.DataFrame: A summary DataFrame with counts of registrations per road, year, and tonnage.
     """
-
     df["Dato"] = pd.to_datetime(df["Dato"])
-
     columns = ["Vei", *[f"{year} {tonnage}t" for year in years for tonnage in tonnages]]
-
     result = {col: [] for col in columns}
-
     VINs = df["VIN"].unique().tolist()
-    latlons = []
+
     for road, (road_lat, road_lon) in tqdm(road_coordinates.items(), desc="Processing roads"):
         most_recent_entry = {VIN: None for VIN in VINs}
         road_counts = {f"{year} {tonnage}t": 0 for year in years for tonnage in tonnages}
@@ -332,7 +330,8 @@ def table(
         )
         df_relevant = df_relevant[df_relevant.apply(
             lambda entry: polygon_boundary.contains(Point(entry["Longitude"], entry["Latitude"])), axis=1)
-        ].sort_values(by="Dato", ascending=True)
+        ]
+        df_relevant = df_relevant.sort_values(by="Dato", ascending=True) if len(df_relevant) > 0 else df_relevant
         print(len(df_relevant))
         for _, entry in df_relevant.iterrows():
             VIN = entry["VIN"]
@@ -346,16 +345,13 @@ def table(
                 year = entry_time.year
                 tonnage = entry["Tonnage"]
                 key = f"{year} {tonnage}t"
-                if key in road_counts:
+                if (key in road_counts) and (valid_dates is None or entry_time.date() in valid_dates):
                     road_counts[key] += 1
-                    if 'Tangen' in road:
-                        latlons.append((entry_time, entry["Latitude"], entry["Longitude"]))
         result["Vei"].append(road)
 
         for key, value in road_counts.items():
             result[key].append(value)
 
-    pd.DataFrame(columns=['Date', 'Latitude', 'Longitude'], data=latlons).to_csv(f"{INTERIM_DATA_DIR / 'estimated_registrations' / subpath / 'latlons.csv'}", index=False)
     return pd.DataFrame(result)
 
 

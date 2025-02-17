@@ -5,7 +5,12 @@ import pytest
 
 def test_estimated_registrations():
 
-    estimated_registrations.main(road_coordinates=estimated_registrations.COORDINATE_POINTS_ROADS, testing=True)
+    estimated_registrations.main(
+        road_coordinates=estimated_registrations.COORDINATE_POINTS_ROADS,
+        testing=True,
+        testfile='input.csv',
+        testoutput='output.csv'
+    )
 
     df_output = pd.read_csv(TESTING_DATA_DIR / 'estimated_registrations/output.csv')
     df_expected = pd.read_csv(TESTING_DATA_DIR / 'estimated_registrations/expected.csv')
@@ -27,3 +32,7 @@ def test_updated_boundaries():
         pd.testing.assert_frame_equal(df_output, df_expected, check_dtype=False)
     except AssertionError as e:
         pytest.fail(f"DataFrames are not equal:\n{e}")
+
+def test_estimated_registrations_with_dates():
+
+    pass
