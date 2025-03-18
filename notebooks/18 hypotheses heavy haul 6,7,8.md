@@ -1,3 +1,15 @@
+```python
+%load_ext autoreload
+%autoreload 2
+
+from source.config import EXTERNAL_DATA_DIR, INTERIM_DATA_DIR
+import pandas as pd
+```
+
+    The autoreload extension is already loaded. To reload it, use:
+      %reload_ext autoreload
+
+
 **Table of contents**<a id='toc0_'></a>    
 - [6: Sett opp oversikt over ulike ekvipasjer (bil og henger kombinasjoner) som har blitt benyttet.](#toc1_)    
 - [7+8 (mål på hva de foretrekker): Hvor ofte har ulike ekvipasjer blitt benyttet, sett opp statistisk fordeling. + Hvor mange km har ulike ekvipasjer tilbakelagt.](#toc2_)    
@@ -14,11 +26,45 @@
 # <a id='toc1_'></a>[6: Sett opp oversikt over ulike ekvipasjer (bil og henger kombinasjoner) som har blitt benyttet.](#toc0_)
 
 
+```python
+df_ekvipasje = pd.read_csv(EXTERNAL_DATA_DIR / 'bil_tilhenger_matching.csv').drop_duplicates(subset='VIN_lastebil')
+df_vehicle_data = pd.read_csv(INTERIM_DATA_DIR / "vehicle weight from 74t.csv")
+
+df_vehicle_data = (
+    df_vehicle_data[df_vehicle_data['VIN'].isin(df_ekvipasje['VIN_lastebil'])]
+    .assign(
+        år=pd.to_datetime(df_vehicle_data['Dato'], format='ISO8601').dt.year,
+        ekvipasje=df_vehicle_data['VIN'].map(df_ekvipasje.set_index('VIN_lastebil')['ekvipasje'])
+    )
+)
+
+df6 = (
+    df_vehicle_data.groupby(['år', 'ekvipasje']).agg(**{
+        'registrerte kjøretøy': ('VIN', 'nunique'),
+    })
+    .reset_index()
+)
+
+df6[['år', 'ekvipasje', 'registrerte kjøretøy']].sort_values(by=['år', 'ekvipasje'], ascending=True)
+
+```
+
+
 
 
 <div>
 <style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
 </style>
 <table border="1" class="dataframe">
   <thead>
@@ -132,16 +178,105 @@
 
 
 
-# <a id='toc2_'></a>[7+8 (mål på hva de foretrekker): Hvor ofte har ulike ekvipasjer blitt benyttet, sett opp statistisk fordeling. + Hvor mange km har ulike ekvipasjer tilbakelagt.](#toc0_)
 
-Tabellen under viser antall turer og km tilbakelagt for hver ekvipasje for hvert år fra 2021-2024.
+```python
+df_antall_unike = (
+    df_vehicle_data.groupby(['ekvipasje']).agg(**{
+        'registrerte kjøretøy': ('VIN', 'nunique'),
+    })
+    .reset_index()
+)
+
+df_antall_unike[['ekvipasje', 'registrerte kjøretøy']].sort_values(by=['ekvipasje'], ascending=True)
+```
 
 
 
 
 <div>
 <style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ekvipasje</th>
+      <th>registrerte kjøretøy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>3-akslet trekkvogn med 4-akslet tilhenger</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>3-akslet trekkvogn med 5-akslet tilhenger</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>4-akslet trekkvogn med 4-akslet tilhenger</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4-akslet trekkvogn med 5-akslet tilhenger</td>
+      <td>3</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+# <a id='toc2_'></a>[7+8 (mål på hva de foretrekker): Hvor ofte har ulike ekvipasjer blitt benyttet, sett opp statistisk fordeling. + Hvor mange km har ulike ekvipasjer tilbakelagt.](#toc0_)
+
+Tabellen under viser antall turer og km tilbakelagt for hver ekvipasje for hvert år fra 2021-2024.
+
+
+```python
+df_grouped = df_vehicle_data.groupby(['ekvipasje', 'år']).agg(**{
+    'turer': ('VIN', 'count'),
+    'kilometer': ('Distanse (km)', 'sum'),
+    'registrerte kjøretøy': ('VIN', 'nunique')
+}).reset_index()
+
+df_grouped['turer per kjøretøy'] = df_grouped['turer'] / df_grouped['registrerte kjøretøy']
+df_grouped['km per kjøretøy'] = df_grouped['kilometer'] / df_grouped['registrerte kjøretøy']
+
+df_grouped.sort_values(by=['år', 'ekvipasje'], ascending=True).round(2)
+
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
 </style>
 <table border="1" class="dataframe">
   <thead>
@@ -327,11 +462,40 @@ Tabellen under viser en videre bearbeiding av tabellen ovenfor, gruppert på ekv
 Dersom man bruker "km per kjøretøy per år" og/eller "turer per kjøretøy per år" som et mål på hvilken ekvipasje som er foretrukket, kommer 4+5 (74T) best ut her.
 
 
+```python
+year_counts = df_grouped.groupby('ekvipasje')['år'].nunique().reset_index()
+year_counts = year_counts.rename(columns={'år': 'num_years'})
+
+df_grouped = df_grouped.merge(year_counts, on='ekvipasje', how='left')
+
+df_grouped['turer per kjøretøy per år'] = df_grouped['turer per kjøretøy'] / df_grouped['num_years']
+df_grouped['km per kjøretøy per år'] = df_grouped['km per kjøretøy'] / df_grouped['num_years']
+
+df_pivot = df_grouped.pivot_table(
+    index='ekvipasje', 
+    values=['turer per kjøretøy per år', 'km per kjøretøy per år'], 
+    aggfunc='sum'
+).reset_index()
+
+df_pivot.sort_values(by='ekvipasje', ascending=True).round(2)
+```
+
+
 
 
 <div>
 <style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
 </style>
 <table border="1" class="dataframe">
   <thead>
