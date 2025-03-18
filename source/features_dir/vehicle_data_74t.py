@@ -52,3 +52,14 @@ def df_truck_vechicle_data_groupby(groupby):
     df_agg['forbruk'] = df_agg['liter_kjoring'] / df_agg['mil']
 
     return df_agg
+
+def convoy_vin():
+    '''map fra str ekvipajse til arr av VIN'''
+    from source.config import EXTERNAL_DATA_DIR
+    import pandas as pd
+    import itertools
+
+    df = pd.read_csv(EXTERNAL_DATA_DIR / 'bil_tilhenger_matching.csv')
+    return df.groupby('ekvipasje')[['VIN_lastebil']].apply(
+        lambda x: set((itertools.chain.from_iterable(x.values)))
+    ).to_dict()
