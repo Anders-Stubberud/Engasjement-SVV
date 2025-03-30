@@ -1,0 +1,7 @@
+\babel@toc {norsk}{}\relax 
+\contentsline {section}{\numberline {1}Datavasking}{2}{section.1}%
+\contentsline {section}{\numberline {2}Analyser med utgangspunkt i prosjektstyringsplanen}{2}{section.2}%
+\contentsline {section}{\numberline {3}Måleusikkerhet}{4}{section.3}%
+\contentsline {section}{\numberline {4}Visualisering av totalvekter}{4}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Box-plots}{4}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Histogrammer}{5}{subsection.4.2}%

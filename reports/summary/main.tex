@@ -1,0 +1,68 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage[most]{tcolorbox}
+\usepackage{mdframed}
+\usepackage{csquotes}
+\usepackage{framed}
+\usepackage[strict]{changepage}
+\usepackage{framed}
+\usepackage{tocloft}
+\usepackage[norsk]{babel}
+\usepackage[a4paper, left=20mm, right=20mm, top=25mm, bottom=25mm]{geometry}
+\usepackage[linkcolor=black, urlcolor=black, citecolor=black, hidelinks]{hyperref}
+\definecolor{formalshade}{rgb}{0.95,0.95,1}
+\definecolor{darkblue}{rgb}{0,0,0.6}
+\lstset{
+    language=Python,
+    backgroundcolor=\color{white}, % Set background color for code
+    basicstyle=\ttfamily, % Set font for code
+    keywordstyle=\color{blue}, % Color for keywords
+    commentstyle=\color{green}, % Color for comments
+    stringstyle=\color{red}, % Color for strings
+    showstringspaces=false, % Don't show spaces in strings
+    breaklines=true, % Break long lines
+    frame=single % Add frame around code
+}    
+\newenvironment{formal}{%
+  \def\FrameCommand{%
+    \hspace{1pt}%
+    {\color{darkblue}\vrule width 2pt}%
+    {\color{formalshade}\vrule width 4pt}%
+    \colorbox{formalshade}%
+  }%
+  \MakeFramed{\advance\hsize-\width\FrameRestore}%
+  \noindent\hspace{-4.55pt}% disable indenting first paragraph
+  \begin{adjustwidth}{}{7pt}%
+  \vspace{2pt}\vspace{2pt}%
+}
+{%
+  \vspace{2pt}\end{adjustwidth}\endMakeFramed%
+} 
+
+
+\begin{document}
+\title{Oppsummerende og avsluttende analyser}
+\author{Anders V. Stubberud}
+\maketitle
+\tableofcontents
+
+\newpage
+\section{Datavasking}
+\input{sections/vask.tex}
+\section{Analyser med utgangspunkt i prosjektstyringsplanen}
+\input{sections/prosjektstyringsplan.tex}
+\section{Måleusikkerhet}
+\input{sections/måleusikkerhet.tex}
+\section{Visualisering av totalvekter}
+\subsection{Box-plots}
+\input{sections/boxplot.tex}
+\subsection{Histogrammer}
+\input{sections/histogrammer.tex}
+
+\end{document}

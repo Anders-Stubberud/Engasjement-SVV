@@ -32,7 +32,6 @@ Engasjement høst24/vår25 hos SVV
 ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
 │
 ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-│   └── figures        <- Generated graphics and figures to be used in reporting
 │
 ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
 │                         generated with `pip freeze > requirements.txt`
@@ -49,12 +48,16 @@ Engasjement høst24/vår25 hos SVV
     │
     ├── features.py             <- Code to create features for modeling
     │
-    ├── modeling                
-    │   ├── __init__.py 
-    │   ├── predict.py          <- Code to run model inference with trained models          
-    │   └── train.py            <- Code to train models
+    ├── features_dir            <- Directory with miscellaneous functions for modeling 
     │
-    └── plots.py                <- Code to create visualizations
+    ├── plots.py                <- Code to create visualizations
+    │
+    ├── plot_scripts            <- Directory with miscellaneous functions for visualizations 
+    │
+    └── modeling                
+        ├── __init__.py 
+        ├── predict.py          <- Code to run model inference with trained models          
+        └── train.py            <- Code to train models
 ```
 
 --------

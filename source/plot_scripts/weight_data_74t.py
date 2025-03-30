@@ -23,10 +23,6 @@ from source.config import VEHICLE_WEIGHT_FIGURES_DIR_74T
 FILTER_THRESHOLD_LOWER = 40000
 FILTER_THRESHOLD_UPPER = 94000
 
-plot = False
-save = True
-
-
 def get_datasets():
     """Load and preprocess the datasets for the 74T vehicle weight analysis."""
 
@@ -130,7 +126,7 @@ def plot_grouped_histograms(
         plt.show()
 
 
-def main():
+def main(plot=True, save=False):
 
     datasets, weights = get_datasets()
 
